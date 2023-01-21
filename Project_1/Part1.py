@@ -1,6 +1,6 @@
 '''
 Grayson Byrd
-CPSC 8430 - Homework 1
+CPSC 8430 - Homework 1, Part 1
 
 Desc:
 This is the file for part 1-1 of Homwork 1. We will train two different
@@ -17,6 +17,7 @@ import torch
 from torch import nn, optim
 from torch.utils.data import Dataset, DataLoader
 import torch.nn.functional as F
+from torchvision.transforms import ToTensor
 import matplotlib.pyplot as plt
 import create_datasets
 import argparse
@@ -75,6 +76,10 @@ def train_loop(dataloader, model, loss_fn, optimizer):
     for batch, (X, y) in enumerate(dataloader):
         # Compute prediction and loss
         pred = model(X)
+        print(torch.numel(pred))
+        print(pred)
+        print(torch.numel(y))
+        print(y)
         loss = loss_fn(pred, y)
         
         # Backpropogation
@@ -121,12 +126,12 @@ class RealFunctionDataset(Dataset):
             idx = idx.tolist()
             print('idx ({idx}) was a tensor')
         
-        input = self.data_frame.iloc[idx, 0]
-        output = self.data_frame.iloc[idx, 1]
-        if self.transform:
-            input = self.transform(input)
-        if self.transform:
-            output = self.transform(output)
+        input = torch.tensor([self.data_frame.iloc[idx, 0]])
+        output = torch.tensor([self.data_frame.iloc[idx, 1]])
+        # if self.transform:
+        #     input = self.transform(input)
+        # if self.transform:
+        #     output = self.transform(output)
         
         return input, output
 
@@ -164,17 +169,8 @@ if __name__=='__main__':
     print (train_features)
     print(train_labels)
     
-    # Create an instance of the neural network and move it to the device
+    # Instantiate model
     model1 = network1()
-    for batch, (X, y) in enumerate(train_dataloader):
-        # Compute prediction and loss
-        print(type(X))
-        print(X.size())
-        X.reshape((1, -1).t())
-        print(X.size())
-        pred = model1(X)
-        print(pred)
-    # print(model1)
     
     # Set hyperparameters for training
     '''
@@ -184,22 +180,22 @@ if __name__=='__main__':
     - Learning Rate
     '''
     
-    # learning_rate = 1e-3
-    # batch_size = 64
-    # epochs = 5
+    learning_rate = 1e-3
+    batch_size = 64
+    epochs = 5
     
-    # # Optimization loop
+    # Optimization loop
     
-    # # Choose a loss function and optimizer
-    # loss_fn = torch.nn.MSELoss
-    # optimizer = torch.optim.Adam(model1.parameters(), lr=learning_rate)
+    # Choose a loss function and optimizer
+    loss_fn = torch.nn.MSELoss
+    optimizer = torch.optim.Adam(model1.parameters(), lr=learning_rate)
     
-    # epochs = 10
-    # for t in range(epochs):
-    #     print(f"Epoch {t + 1}\n-------------------------------------")
-    #     train_loop(train_dataloader, model1, loss_fn, optimizer)
-    #     test_loop(test_dataloader, model1, loss_fn)
-    # print("Done!")
+    epochs = 10
+    for t in range(epochs):
+        print(f"Epoch {t + 1}\n-------------------------------------")
+        train_loop(train_dataloader, model1, loss_fn, optimizer)
+        test_loop(test_dataloader, model1, loss_fn)
+    print("Done!")
     
     
     
