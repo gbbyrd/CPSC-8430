@@ -1,20 +1,29 @@
 import csv
+import os
 import pandas as pd
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from Part1 import path_to_current_folder, data_folder
 
 # 1_1 function definition
 def func(x):
     return (np.exp(np.sin(x)))*np.cos(x)
 
-def create_1_1_dataset():
+def create_part1_dataset(dataset_name: str, num_data_points: int):
+    # Create data folder if necessary
+    if os.path.exists(os.path.join(path_to_current_folder, data_folder)):
+        pass
+    else:
+        os.mkdir(os.path.join(path_to_current_folder, data_folder))
+    
     a = [['x', 'y']]
-    for it in range(4000):
-        x = round(random.uniform(-10.00, 10.00), 3)
-        y = func(x)
+    for it in range(num_data_points):
+        x = round(random.uniform(-10.00, 10.00), 2)
+        y = round(func(x), 2)
         a.append([x, y])
-    with open("./dataset_1_1.csv", "w", newline="") as f:
+    csv_name = os.path.join(path_to_current_folder, dataset_name)
+    with open(csv_name, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(a)
         
