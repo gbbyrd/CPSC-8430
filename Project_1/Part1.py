@@ -21,6 +21,7 @@ from torchvision.transforms import ToTensor
 import matplotlib.pyplot as plt
 import create_datasets
 import argparse
+import time
 
 # For debugging
 parser = argparse.ArgumentParser(description="Determine if debugging.")
@@ -76,10 +77,6 @@ def train_loop(dataloader, model, loss_fn, optimizer):
     for batch, (X, y) in enumerate(dataloader):
         # Compute prediction and loss
         pred = model(X)
-        print(torch.numel(pred))
-        print(pred)
-        print(torch.numel(y))
-        print(y)
         loss = loss_fn(pred, y)
         
         # Backpropogation
@@ -100,12 +97,25 @@ def test_loop(dataloader, model, loss_fn):
         for X, y in dataloader:
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
-            if pred == y:
-                correct += 1
+            for ind, (pred_val) in enumerate(pred):
+                if pred_val == y[ind]:
+                    correct += 1
     
     test_loss /= num_batches
     correct /= size
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    
+def plot_model(model, dataloader):
+    for X, y in dataloader:
+        pred = model(X)
+        data = pd.read_csv('data/train_dataset_1_1.csv')
+        data = data.to_numpy()
+        pred = pred.cpu().detach().numpy()
+        plt.scatter(X, pred, c='red')
+        plt.scatter(X, y, c='blue')
+        plt.scatter(data[:, 0], data[:, 1], c='green', s=5)
+        plt.show()
+        break
     
 
 # Create a custom dataset class for the generated dataset
@@ -187,7 +197,7 @@ if __name__=='__main__':
     # Optimization loop
     
     # Choose a loss function and optimizer
-    loss_fn = torch.nn.MSELoss
+    loss_fn = torch.nn.MSELoss()
     optimizer = torch.optim.Adam(model1.parameters(), lr=learning_rate)
     
     epochs = 10
@@ -195,6 +205,11 @@ if __name__=='__main__':
         print(f"Epoch {t + 1}\n-------------------------------------")
         train_loop(train_dataloader, model1, loss_fn, optimizer)
         test_loop(test_dataloader, model1, loss_fn)
+        # Plot a graph and wait for 5 seconds to see the model's performance
+        # Improve with each epoch
+        plot_model(model1, test_dataloader)
+        time.sleep(2)
+        
     print("Done!")
     
     
