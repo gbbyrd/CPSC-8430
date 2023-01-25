@@ -2,6 +2,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import pandas as pd
+import numpy as np
+import csv
 
 class network1(nn.Module):
     def __init__(self, device):
@@ -33,13 +36,13 @@ class network2(nn.Module):
         self.lout = nn.Linear(27, 1).to(device)
     
     def forward(self, x):
-        activation_func = F.tanh
+        activation_func = F.relu
         x = activation_func(self.lin(x))
         x = activation_func(self.fc1(x))
         x = activation_func(self.fc2(x))
         x = activation_func(self.fc3(x))
         x = activation_func(self.fc4(x))
-        x = activation_func(self.lout(x))
+        x = self.lout(x)
         
         return x
     
@@ -62,14 +65,17 @@ class network3(nn.Module):
         return x
         
     
-def train_model(model, x_train, y_train, x_eval, epochs):
+def train_model(model, x_train, y_train, x_eval, epochs, csv_name, convergence=.001):
     
     optimizer = optim.Adam(model.parameters())
     loss_fn = nn.MSELoss(reduction='mean')
-    
+    loss_list = [['epochs', 'loss']]
     for epoch in range(epochs):
         pred = model(x_train)
         loss = loss_fn(pred, y_train)
+        if epoch % 10 == 0:
+            print(f'Epoch: {epoch}, Loss: {loss}')
+            loss_list.append([epoch, loss])
         
         # compute gradients
         loss.backward()
@@ -79,10 +85,34 @@ def train_model(model, x_train, y_train, x_eval, epochs):
         
         # reset gradients to zero
         optimizer.zero_grad()
+        
+        if loss < convergence:
+            print(f'Epoch: {epoch}, Loss: {loss}')
+            print(f'Model converges after {epoch} epochs.')
+            loss_list.append([epoch, loss])
+            break
+    
+    print("-----------------------------------------")
+    
+    for index, (epoch, loss) in enumerate(loss_list):
+        if index == 0:
+            continue
+        # # loss = torch.Tensor.cpu(loss)
+        loss_list[index][1] = loss.item()
+        # loss_list[index][1] = loss.detach().cpu().numpy()[0]
+        
+    with open(csv_name, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows(loss_list)
     
     pred_eval = model(x_eval)
     
-    return pred_eval.detach().cpu().numpy()
+    # delete the labels from loss_list list and convert to dtype float
+    loss_list = np.array(loss_list)
+    loss_list = loss_list[1:]
+    loss_list = loss_list.astype(np.float32)
+    
+    return pred_eval.detach().cpu().numpy(), loss_list
 
 
         
