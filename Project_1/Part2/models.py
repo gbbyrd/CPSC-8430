@@ -14,6 +14,10 @@ class CNN(nn.Module):
         self.fc2 = nn.Linear(145, 30)
         self.fc3 = nn.Linear(30, 10)
         
+        # Keep track of training epochs for loading and continuing
+        # model training
+        self.training_epochs = 0
+        
     def forward(self, x):
         # Conv Layer 1
         x = self.conv1(x)
@@ -48,6 +52,10 @@ class DNN(nn.Module):
         self.fc3 = nn.Linear(100, 55)
         self.fc4 = nn.Linear(55, 10)
         
+        # Keep track of training epochs for loading and continuing
+        # model training
+        self.training_epochs = 0
+        
     def forward(self, x):
         activation_func = F.relu
         # Flatten the rgb data
@@ -81,4 +89,21 @@ def train_model(model, dataloader, epochs, optimizer, loss_fn, device):
             if batch % 1000 == 999:
                 print(f'Total loss after {epoch+1} epochs and {batch+1} batches: {running_loss/2000}')
                 running_loss = 0.0
+                
+def test_accuracy(model, dataloader, batch_size, device):
+    total = 0
+    correct = 0
+    
+    with torch.no_grad():
+        for  batch, (img, label) in enumerate(dataloader):
+            img = img.to(device)
+            label = label.to(device)
+            pred = model(img)
+            
+            _, predictions = torch.max(pred, 1)
+            
+            total += label.size(0)
+            correct += (predictions == label).sum().item()
+            
+    print(f'Accuracty after {total} test images: {correct / total}.')
         
