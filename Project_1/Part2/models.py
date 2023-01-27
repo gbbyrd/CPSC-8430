@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from csv import writer
+import os
+import numpy as np
 
 class CNN(nn.Module):
     def __init__(self):
@@ -67,13 +70,16 @@ class DNN(nn.Module):
         
         return x
     
-def train_model(model, dataloader, epochs, optimizer, loss_fn, device):
+def train_model(model, csv_name, dataloader, epochs, optimizer, loss_fn, device):
     
     optimizer = optimizer(model.parameters())
     loss_fn = loss_fn
     
+    training_info = []
+    
     running_loss = 0.0
     for epoch in range(epochs):
+        
         for batch, (img, label) in enumerate(dataloader):
             
             img = img.to(device)
@@ -86,9 +92,24 @@ def train_model(model, dataloader, epochs, optimizer, loss_fn, device):
             optimizer.step()
             
             running_loss += loss
-            if batch % 1000 == 999:
-                print(f'Total loss after {epoch+1} epochs and {batch+1} batches: {running_loss/2000}')
-                running_loss = 0.0
+            
+        total_epochs = model.training_epochs+epoch+1
+        running_loss = running_loss.detach().cpu().item()
+        print(f'Total Epochs: {total_epochs}, Average Loss: {running_loss/len(dataloader)}')
+        training_info.append([total_epochs, round(running_loss/len(dataloader), 3)])
+        running_loss = 0.0
+    
+    # Write training data to csv file
+    if not os.path.exists(csv_name):
+        with open(csv_name, 'a') as f:
+            writer_object = writer(f)
+            writer_object.writerow(['epochs', 'average_loss'])
+            
+            f.close()
+    
+    with open(csv_name, 'a') as f:
+        writer_object = writer(f)
+        writer_object.writerows(training_info)
                 
 def test_accuracy(model, dataloader, batch_size, device):
     total = 0
@@ -106,4 +127,3 @@ def test_accuracy(model, dataloader, batch_size, device):
             correct += (predictions == label).sum().item()
             
     print(f'Accuracty after {total} test images: {correct / total}.')
-        
