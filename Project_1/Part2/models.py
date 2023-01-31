@@ -5,48 +5,117 @@ from csv import writer
 import os
 import numpy as np
 
-class CNN(nn.Module):
-    def __init__(self):
+# # Base model to improve upon
+# class Base_CNN(nn.Module):
+#     def __init__(self):
+#         super().__init__()
+#         self.conv1 = nn.Conv2d(3, 8, 5)
+#         self.batch1 = nn.BatchNorm2d(8)
+#         self.pool = nn.MaxPool2d(2, 2)
+#         self.dropout = nn.Dropout(0.25)
+#         self.conv2 = nn.Conv2d(8, 10, 5)
+#         self.batch2 = nn.BatchNorm2d(10)
+#         self.fc1 = nn.Linear(10*5*5, 145)
+#         self.fc2 = nn.Linear(145, 30)
+#         self.fc3 = nn.Linear(30, 10)
+        
+#         # Keep track of training epochs for loading and continuing
+#         # model training
+#         self.training_epochs = 0
+#         self.name = 'base_cnn'
+        
+#     def forward(self, x):
+#         # Conv Layer 1
+#         x = self.conv1(x)
+#         x = F.relu(self.batch1(x))
+        
+#         # Pooling Layer 1
+#         x = self.pool(x)
+        
+#         # Droupout
+#         x = self.dropout(x)
+        
+#         # Conv Layer 2 
+#         x = self.conv2(x)
+#         x = F.relu(self.batch2(x))
+        
+#         # Pooling Layer 2
+#         x = self.pool(x)
+        
+#         # Droupout
+#         x = self.dropout(x)
+        
+#         # Flatten tensor for FCLs
+#         x = torch.flatten(x, 1)
+#         print(x.size())
+#         # Fully Connected Layers
+#         x = F.relu(self.fc1(x))
+#         x = F.relu(self.fc2(x))
+#         x = self.fc3(x)
+        
+#         return x
+
+class CNN_2(nn.Module):
+    def __init__(self) -> None:
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 8, 5)
-        self.batch1 = nn.BatchNorm2d(8)
-        self.pool = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(8, 10, 5)
-        self.batch2 = nn.BatchNorm2d(10)
-        self.fc1 = nn.Linear(10*5*5, 145)
-        self.fc2 = nn.Linear(145, 30)
-        self.fc3 = nn.Linear(30, 10)
+        self.conv1 = nn.Conv2d(3, 32, 4)
+        self.batch1 = nn.BatchNorm2d(32)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(32, 32, 4)
+        self.batch2 = nn.BatchNorm2d(32)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(800, 256)
+        self.fc2 = nn.Linear(256, 10)
         
-        # Keep track of training epochs for loading and continuing
-        # model training
         self.training_epochs = 0
-        
+        self.name = 'cnn_2'
     def forward(self, x):
-        # Conv Layer 1
+        act_func = F.relu
         x = self.conv1(x)
-        x = F.relu(self.batch1(x))
-        
-        # Pooling Layer 1
-        x = self.pool(x)
-        
-        # Conv Layer 2 
+        x = act_func(self.batch1(x))
+        x = self.pool1(x)
         x = self.conv2(x)
-        x = F.relu(self.batch2(x))
-        
-        # Pooling Layer 2
-        x = self.pool(x)
-        
-        # Flatten tensor for FCLs
+        x = act_func(self.batch2(x))
+        x = self.pool2(x)
         x = torch.flatten(x, 1)
+        x = act_func(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+# Adds dropout to the cnn_2 model
+class CNN_3(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 32, 4)
+        self.batch1 = nn.BatchNorm2d(32)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(32, 32, 4)
+        self.batch2 = nn.BatchNorm2d(32)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(800, 256)
+        self.fc2 = nn.Linear(256, 10)
         
-        # Fully Connected Layers
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        self.dropout = nn.Dropout(.25)
         
+        self.training_epochs = 0
+        self.name = 'cnn_3'
+    def forward(self, x):
+        act_func = F.relu
+        x = self.conv1(x)
+        x = act_func(self.batch1(x))
+        x = self.pool1(x)
+        x = self.dropout(x)
+        x = self.conv2(x)
+        x = act_func(self.batch2(x))
+        x = self.pool2(x)
+        x = self.dropout(x)
+        x = torch.flatten(x, 1)
+        x = act_func(self.fc1(x))
+        x = self.fc2(x)
         return x
     
-class DNN(nn.Module):
+# Base model to improve upon
+class Base_DNN(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.fc1 = nn.Linear(3*32*32, 200)
@@ -58,7 +127,7 @@ class DNN(nn.Module):
         # Keep track of training epochs for loading and continuing
         # model training
         self.training_epochs = 0
-        
+        self.name = 'base_dnn'
     def forward(self, x):
         activation_func = F.relu
         # Flatten the rgb data

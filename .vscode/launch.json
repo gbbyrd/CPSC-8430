@@ -22,7 +22,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": ["--train", "--test", "--epochs", "10", "--batch_size", "32"],
-            "cwd": "Project_1/Part2/"
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part2"
         },
 
         {
@@ -33,7 +33,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": ["--test"],
-            "cwd": "Project_1/Part2/"
+            "cwd": "Project_1/Part2"
         },
 
 

@@ -28,8 +28,14 @@ def get_epoch(checkpoint):
         
     return int(epoch)
 
+# Choose which model you want to run
+model = models.CNN_2()
+
+# Specify checkpoint .pth file ("None" if training from scratch)
+checkpoint = None
+
 # Define paths
-checkpoint_folder_path = 'checkpoints'
+checkpoint_folder_path = 'checkpoints/'
 
 # Save the trained models
 checkpoint_paths = os.listdir('checkpoints')
@@ -90,29 +96,23 @@ if __name__=='__main__':
     # # print labels
     # print(' '.join(f'{classes[rand_labels[j]]:5s}' for j in range(batch_size)))
     
-    # Inititiate Models
-    model_cnn = models.CNN().to(device)
-    model_dnn = models.DNN().to(device)
-    
+    # Send model to the gpus
+    model = model.to(device)
     # Train the Models
     if arguments.train:
         
         # If there is a saved model, load the saved model
-        if len(checkpoint_paths):
-            model_cnn.load_state_dict(torch.load(checkpoint_folder_path + '/' + cnn_checkpoint))
-            model_dnn.load_state_dict(torch.load(checkpoint_folder_path + '/' + dnn_checkpoint))
-            model_cnn.training_epochs = cnn_epochs
-            model_dnn.training_epochs = dnn_epochs
+        if not checkpoint is None:
+            model = torch.load(checkpoint)
             
         # Define epochs, optimizer, and loss function
         epochs = arguments.epochs
         optimizer = optim.Adam
         loss_fn = nn.CrossEntropyLoss()
         
-        models.train_model(model=model_cnn, csv_name='training_info_cnn.csv', dataloader=trainloader, epochs=epochs, 
+        models.train_model(model=model, csv_name=model.name, dataloader=trainloader, epochs=epochs, 
                         optimizer=optimizer, loss_fn=loss_fn, device=device)
-        models.train_model(model=model_dnn, csv_name='training_info_dnn.csv', dataloader=trainloader, epochs=epochs, 
-                        optimizer=optimizer, loss_fn=loss_fn, device=device)
+        
         
         # Reflect the updated number of training epochs inside the model classes
         model_cnn.training_epochs += epochs
