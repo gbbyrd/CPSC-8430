@@ -259,14 +259,17 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
     
     csv_name = 'model_data/' + model.name + '.csv'
     
-    running_loss = 0.0
+    training_running_loss = 0.0
+    testing_running_loss = 0.0
+    batch_size = 0
     
     print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////')
         
     for epoch in range(epochs):
-        
+        num_of_train_batches = 0
         for batch, (img, label) in enumerate(training_dataloader):
             
+            batch_size = len(img)
             img = img.to(device)
             label = label.to(device)
             pred = model(img)
@@ -276,20 +279,26 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
             loss.backward()
             optimizer.step()
             
-            running_loss += loss
+            training_running_loss += loss
+            
+            test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+            
+            testing_running_loss += testing_loss
+            
             
         total_epochs = model.training_epochs+epoch+1
-        running_loss = running_loss.detach().cpu().item()
+        running_loss = round(running_loss.detach().cpu().item(), 3)
         train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader, loss_fn, device)
         test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
         training_loss = round(training_loss.detach().cpu().item(), 3)
         testing_loss = round(testing_loss.detach().cpu().item(), 3)
         print(f'Total Epochs: {total_epochs}, Training Ex Per Epoch: {train_total_examples}')
-        print(f'Training Loss: {training_loss}, Training Set Accuracy: {training_accuracy}')
-        print(f'Testing Loss: {testing_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
+        print(f'Average Training Loss: {training_running_loss/(50000/batch_size)}, Training Set Accuracy: {training_accuracy}')
+        print(f'Testing Loss: {testing_running_loss/(10000/batch_size)}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
         print('-----------------------------------------------------------------------------')
         training_info.append([total_epochs, training_loss, training_accuracy, testing_loss, testing_accuracy])
-        running_loss = 0.0
+        training_running_loss = 0.0
+        testing_running_loss = 0.0
         
     print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
     
