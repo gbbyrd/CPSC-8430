@@ -9,13 +9,14 @@ import numpy as np
 class CNN_0(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 8, 5)
-        self.batch1 = nn.BatchNorm2d(8)
+        self.conv1 = nn.Conv2d(3, 64, 5, padding=3)
+        self.batch1 = nn.BatchNorm2d(64)
         self.pool = nn.MaxPool2d(2, 2)
         self.dropout = nn.Dropout(0.25)
-        self.conv2 = nn.Conv2d(8, 10, 5)
+        self.conv2 = nn.Conv2d(64, 64, 5, padding=3)
+        self.conv3 = nn.Conv2d(64, 10, 5)
         self.batch2 = nn.BatchNorm2d(10)
-        self.fc1 = nn.Linear(10*5*5, 145)
+        self.fc1 = nn.Linear(40, 145)
         self.fc2 = nn.Linear(145, 30)
         self.fc3 = nn.Linear(30, 10)
         
@@ -37,9 +38,19 @@ class CNN_0(nn.Module):
         
         # Conv Layer 2 
         x = self.conv2(x)
-        x = F.relu(self.batch2(x))
+        x = F.relu(self.batch1(x))
         
         # Pooling Layer 2
+        x = self.pool(x)
+        
+        # Droupout
+        x = self.dropout(x)
+        
+        # Conv Layer 3
+        x = self.conv3(x)
+        x = F.relu(self.batch2(x))
+        
+        # Pooling layer 3
         x = self.pool(x)
         
         # Droupout
