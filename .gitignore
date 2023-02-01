@@ -1,7 +1,7 @@
 Project_1/proj1_env
 Project_1/test.py
 Project_1/Part1/*.csv
-Project_1/Part2/data
-Project_1/Part2/checkpoints
-Project_1/Part2/figures
-Project_1/Part2/model_data
+Project_1/Part2/data/
+Project_1/Part2/checkpoints/
+Project_1/Part2/figures/
+Project_1/Part2/model_data/
