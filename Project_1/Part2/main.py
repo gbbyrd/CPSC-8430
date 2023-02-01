@@ -15,43 +15,26 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import models
+import generate_figures
 import args
 import os
 import glob
 
-def get_epoch(checkpoint):
-    idx = 0
-    epoch = ''
-    while not checkpoint[idx] == '_':
-        epoch += checkpoint[idx]
-        idx += 1
-        
-    return int(epoch)
-
-# Choose which model you want to run
-model = models.CNN_2()
-
-# Specify checkpoint .pth file ("None" if training from scratch)
-checkpoint = None
-
-# Define paths
-checkpoint_folder_path = 'checkpoints/'
-
-# Save the trained models
-checkpoint_paths = os.listdir('checkpoints')
-checkpoint_paths.sort()
-
-# Define total epochs
-cnn_epochs = 0
-dnn_epochs = 0
-
-if len(checkpoint_paths):
-    cnn_checkpoint = checkpoint_paths[-2]
-    dnn_checkpoint = checkpoint_paths[-1]
-    cnn_epochs = get_epoch(cnn_checkpoint)
-    dnn_epochs = get_epoch(dnn_checkpoint)
-    
 arguments = args.parser.parse_args()
+
+checkpoint_folder_path = 'checkpoints/'
+batch_size = arguments.batch_size
+checkpoint = arguments.checkpoint
+model_type = arguments.model_type
+epochs = arguments.epochs
+train = arguments.train
+test = arguments.test
+is_all = arguments.all_models
+
+if checkpoint is None:
+    checkpoint_path = None
+else:
+    checkpoint_path = os.path.join(checkpoint_folder_path, checkpoint)
 
 # Set GPU device
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -62,8 +45,6 @@ transform = transforms.Compose(
     [transforms.ToTensor(),
      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 )
-
-batch_size = arguments.batch_size
 
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                         download=True, transform=transform)
@@ -78,69 +59,55 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
 classes = ('plane', 'car', 'bird', 'cat',
            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
 
-# function to depict and image
-def show_image(img):
-    img = img / 2 + 0.5
-    numpy_img = img.numpy()
-    plt.imshow(np.transpose(numpy_img, (1, 2, 0)))
-    plt.show()
+# List of model class names to loop through to train all models at once
+model_list = [
+    'cnn_0',
+    'cnn_1',
+    'cnn_2',
+    'dnn_0',
+    'dnn_1',
+    'dnn_2'
+]
 
-if __name__=='__main__':
-    ##### Uncomment for image troubleshooting #####
-    # # get random training images
-    # iterator = iter(trainloader)
-    # rand_images, rand_labels = next(iterator)
-    # print(rand_images.size())
-    # # show images
-    # show_image(torchvision.utils.make_grid(rand_images))
-    # # print labels
-    # print(' '.join(f'{classes[rand_labels[j]]:5s}' for j in range(batch_size)))
+def run_model(model_type, checkpoint_path):
     
-    # Send model to the gpus
+    model = models.create_model(model_type, checkpoint_path)
     model = model.to(device)
+    
     # Train the Models
-    if arguments.train:
+    if train:
         
-        # If there is a saved model, load the saved model
-        if not checkpoint is None:
-            model = torch.load(checkpoint)
-            
-        # Define epochs, optimizer, and loss function
-        epochs = arguments.epochs
         optimizer = optim.Adam
         loss_fn = nn.CrossEntropyLoss()
         
-        models.train_model(model=model, csv_name=model.name, dataloader=trainloader, epochs=epochs, 
-                        optimizer=optimizer, loss_fn=loss_fn, device=device)
+        models.train_model(model, trainloader, testloader, epochs, optimizer, loss_fn, device)
         
-        
-        # Reflect the updated number of training epochs inside the model classes
-        model_cnn.training_epochs += epochs
-        model_dnn.training_epochs += epochs
-    
-        # Save the trained models
-        if not os.path.exists(checkpoint_folder_path):
-            os.mkdir(checkpoint_folder_path)
-        torch.save(model_cnn.state_dict(), checkpoint_folder_path + f'/{model_cnn.training_epochs}_model_cnn.pth')
-        torch.save(model_dnn.state_dict(), checkpoint_folder_path + f'/{model_dnn.training_epochs}_model_dnn.pth')
+        models.save_model(model)
     
     ############ TESTING AND VALIDATION #######################
     
-    if arguments.test:
+    if test:
     
-        if not arguments.train:
-            # Load the models
-            model_cnn.load_state_dict(torch.load(checkpoint_folder_path + '/' + cnn_checkpoint))
-            model_dnn.load_state_dict(torch.load(checkpoint_folder_path + '/' + dnn_checkpoint))
-            model_cnn.training_epochs = cnn_epochs
-            model_dnn.training_epochs = dnn_epochs
-            
-        # Test accuracy of the trained models
+        loss_fn = nn.CrossEntropyLoss()
         
-        models.test_accuracy(model_cnn, testloader, batch_size, device)
-        models.test_accuracy(model_dnn, testloader, batch_size, device)
+        total_testing_examples, testing_accuracy, testing_loss = models.test_accuracy(model, testloader, loss_fn, device)
+
+        print('//////////////////////////////// TESTING /////////////////////////////////////////////////////////////////////////////////////')
+        print(f'{model.name} achieved {testing_accuracy} accuracy on {total_testing_examples} after {model.training_epochs} training epochs.')
+        print('//////////////////////////////// TESTING /////////////////////////////////////////////////////////////////////////////////////\n\n')
+
+def main():
     
+    if is_all:
+        for model in model_list:
+            run_model(model, checkpoint_path)
+    else:
+        run_model(model_type, checkpoint_path)
+
+    generate_figures.generate_figures()
     
-    
+        
+if __name__=='__main__':
+    main()
     
 

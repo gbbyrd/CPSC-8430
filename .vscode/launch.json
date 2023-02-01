@@ -21,7 +21,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["--train", "--test", "--epochs", "10", "--batch_size", "32"],
+            "args": ["--train", "--test", "--epochs", "3", "--batch_size", "32", "--all_models"],
             "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part2"
         },
 
@@ -34,6 +34,17 @@
             "justMyCode": true,
             "args": ["--test"],
             "cwd": "Project_1/Part2"
+        },
+
+        {
+            "name": "Generate Figures",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [],
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part2"
         },
 
 
