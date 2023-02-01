@@ -290,7 +290,7 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
             
         total_epochs = model.training_epochs+epoch+1
         training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
-        testing_running_loss = round(training_running_loss.detach().cpu().item(), 3)
+        testing_running_loss = round(testing_running_loss.detach().cpu().item(), 3)
         train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader, loss_fn, device)
         test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
         average_train_loss = training_running_loss/(train_count)
