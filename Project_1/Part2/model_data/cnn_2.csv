@@ -1,0 +1,3 @@
+epochs,training_loss,training_accuracy,testing_loss,testing_accuracy
+1,1.4255361484325015,0.57172,"tensor(1.3614, device='cuda:0')",0.5648
+2,1.1479596928982725,0.63182,"tensor(1.1015, device='cuda:0')",0.6205
