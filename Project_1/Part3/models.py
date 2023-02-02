@@ -198,7 +198,7 @@ class CNN_4(nn.Module):
 class DNN_0(nn.Module):
     def __init__(self) -> None:
         super(DNN_0, self).__init__()
-        self.fc1 = nn.Linear(3*28*28, 200)
+        self.fc1 = nn.Linear(1*28*28, 200)
         self.fc2 = nn.Linear(200, 100)
         self.fc3 = nn.Linear(100, 100)
         self.fc3 = nn.Linear(100, 55)
@@ -224,7 +224,7 @@ class DNN_1(nn.Module):
     
     def __init__(self) -> None:
         super(DNN_1, self).__init__()
-        self.fc1 = nn.Linear(3*28*28, 400)
+        self.fc1 = nn.Linear(1*28*28, 400)
         self.fc2 = nn.Linear(400, 500)
         self.fc3 = nn.Linear(500, 1000)
         self.fc4 = nn.Linear(1000, 700)
@@ -258,7 +258,7 @@ class DNN_1(nn.Module):
 class DNN_2(nn.Module):
     def __init__(self) -> None:
         super(DNN_2, self).__init__()
-        self.fc1 = nn.Linear(3*28*28, 100)
+        self.fc1 = nn.Linear(1*28*28, 100)
         self.fc2 = nn.Linear(100, 200)
         self.fc3 = nn.Linear(200, 300)
         self.fc4 = nn.Linear(300, 300)
@@ -302,7 +302,7 @@ class DNN_3(nn.Module):
     def __init__(self):
         super(DNN_3, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(3*28*28, 200),
+            nn.Linear(1*28*28, 200),
             nn.ReLU(),
             nn.Linear(200, 300),
             nn.ReLU(),
@@ -319,7 +319,7 @@ class DNN_4(nn.Module):
     def __init__(self):
         super(DNN_4, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(3*28*28, 400),
+            nn.Linear(1*28*28, 400),
             nn.ReLU(),
             nn.Linear(400, 300),
             nn.ReLU(),

@@ -53,7 +53,7 @@ class MyTwistedMNIST(torch.utils.data.Dataset):
         
     def __getitem__(self, index):
         x, y = self.orig_mnist[index]
-
+        
         return x, self.rand_label[index]
     
     def __len__(self):
