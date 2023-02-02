@@ -49,12 +49,13 @@ class MyTwistedMNIST(torch.utils.data.Dataset):
         super(MyTwistedMNIST, self).__init__()
         self.orig_mnist = torchvision.datasets.MNIST(root='./data', train=True,
                                         download=True, transform=transform)
+        self.rand_label = np.random.randint(10, size=len(self.orig_mnist))
         
     def __getitem__(self, index):
         x, y = self.orig_mnist[index]
-        random_label = torch.randint(0, 10, (1,)).item()
 
-        return x, random_label
+        return x, self.rand_label[index]
+    
     def __len__(self):
         return self.orig_mnist.__len__()
     
