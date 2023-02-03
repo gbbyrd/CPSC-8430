@@ -61,13 +61,30 @@ class MyTwistedMNIST(torch.utils.data.Dataset):
     
     def __len__(self):
         return self.orig_mnist.__len__()
+
+class MNIST10RandomLabels(torchvision.datasets.MNIST):
+  """MNIST10 dataset, with support for randomly corrupt labels.
+
+  Params
+  ------
+  corrupt_prob: float
+    Default 0.0. The probability of a label being replaced with
+    random label.
+  num_classes: int
+    Default 10. The number of classes in the dataset.
+  """
+  def __init__(self, num_classes=10, **kwargs):
+    super(MNIST10RandomLabels, self).__init__(**kwargs)
+    labels = np.random.choice(10, len(self.targets))
+    labels = [int(x) for x in labels]
+    self.targets = labels
     
 # Set transform variable to transform data to normalized tensor
 transform = transforms.Compose(
     [transforms.ToTensor()]
 )
 
-trainset_twisted = MyTwistedMNIST(random_labels)
+trainset_twisted = MNIST10RandomLabels()
     
 testset = torchvision.datasets.MNIST(root='./data', train=False,
                                      download=True, transform=transform)

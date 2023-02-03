@@ -319,11 +319,9 @@ class DNN_4(nn.Module):
     def __init__(self):
         super(DNN_4, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 400),
+            nn.Linear(1*28*28, 512),
             nn.ReLU(),
-            nn.Linear(400, 300),
-            nn.ReLU(),
-            nn.Linear(300, 10),
+            nn.Linear(512, 10)
         )
         
         self.training_epochs = 0
