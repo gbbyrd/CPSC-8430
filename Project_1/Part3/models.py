@@ -328,6 +328,7 @@ class DNN_4(nn.Module):
         self.name = 'dnn_4'
         
     def forward(self, x):
+        x = torch.flatten(x, 1)
         return self.network(x)
     
 def create_model(model_type: str, checkpoint: str):

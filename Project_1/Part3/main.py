@@ -73,8 +73,8 @@ class MNIST10RandomLabels(torchvision.datasets.MNIST):
   num_classes: int
     Default 10. The number of classes in the dataset.
   """
-  def __init__(self, num_classes=10):
-    super(MNIST10RandomLabels, self).__init__()
+  def __init__(self, num_classes=10, **kwargs):
+    super(MNIST10RandomLabels, self).__init__(**kwargs)
     labels = np.random.choice(10, len(self.targets))
     labels = [int(x) for x in labels]
     self.targets = labels
@@ -84,7 +84,10 @@ transform = transforms.Compose(
     [transforms.ToTensor()]
 )
 
-trainset_twisted = MNIST10RandomLabels()
+trainset_twisted = MNIST10RandomLabels(root='./data', train=True, download=True,
+                            transform=transform)
+
+# print(trainset_twisted[0][0])
     
 testset = torchvision.datasets.MNIST(root='./data', train=False,
                                      download=True, transform=transform)
