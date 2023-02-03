@@ -22,6 +22,7 @@ import models
 import args
 import os
 import generate_figures
+import random
 
 arguments = args.parser.parse_args()
 
@@ -43,13 +44,15 @@ else:
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 
+random_labels = np.random.randint(10, size=600000)
+
 # Custom MNIST Wrapper for randomizing the labels of the dataset
 class MyTwistedMNIST(torch.utils.data.Dataset):
-    def __init__(self):
+    def __init__(self, random_label_array):
         super(MyTwistedMNIST, self).__init__()
         self.orig_mnist = torchvision.datasets.MNIST(root='./data', train=True,
                                         download=True, transform=transform)
-        self.rand_label = np.random.randint(10, size=len(self.orig_mnist))
+        self.rand_label = random_label_array
         
     def __getitem__(self, index):
         x, y = self.orig_mnist[index]
@@ -64,11 +67,19 @@ transform = transforms.Compose(
     [transforms.ToTensor()]
 )
 
-trainset_twisted = MyTwistedMNIST()
+trainset_twisted = MyTwistedMNIST(random_labels)
+
+trainset = torchvision.datasets.MNIST(root='./data', train=True,
+                                        download=True, transform=transform)
+
+# randomly shuffle the lables
+for i in len(trainset):
+    trainset.targets[i] = random.randint(0, 9)
+    
 testset = torchvision.datasets.MNIST(root='./data', train=False,
                                      download=True, transform=transform)
 
-trainloader_twisted = torch.utils.data.DataLoader(trainset_twisted, batch_size=batch_size,
+trainloader_twisted = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
                                                   shuffle=True, num_workers=2)
 
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
