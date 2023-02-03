@@ -73,7 +73,7 @@ trainset = torchvision.datasets.MNIST(root='./data', train=True,
                                         download=True, transform=transform)
 
 # randomly shuffle the lables
-for i in len(trainset):
+for i in range(len(trainset)):
     trainset.targets[i] = random.randint(0, 9)
     
 testset = torchvision.datasets.MNIST(root='./data', train=False,
