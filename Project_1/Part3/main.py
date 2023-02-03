@@ -68,18 +68,11 @@ transform = transforms.Compose(
 )
 
 trainset_twisted = MyTwistedMNIST(random_labels)
-
-trainset = torchvision.datasets.MNIST(root='./data', train=True,
-                                        download=True, transform=transform)
-
-# randomly shuffle the lables
-for i in range(len(trainset)):
-    trainset.targets[i] = random.randint(0, 9)
     
 testset = torchvision.datasets.MNIST(root='./data', train=False,
                                      download=True, transform=transform)
 
-trainloader_twisted = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
+trainloader_twisted = torch.utils.data.DataLoader(trainset_twisted, batch_size=batch_size,
                                                   shuffle=True, num_workers=2)
 
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
