@@ -313,6 +313,7 @@ class DNN_3(nn.Module):
         self.name = 'dnn_3'
         
     def forward(self, x):
+        x = torch.flatten(x, 1)
         return self.network(x)
     
 class DNN_4(nn.Module):
