@@ -8,13 +8,13 @@ import os
 def generate_figures():
     # # group CNN and DNN models together
     csv_files = glob.glob('model_data/*csv')
-    # cnn_files = []
+    cnn_files = []
     dnn_files = []
-    # for name in csv_files:
-    #     if 'cnn' in name:
-    #         cnn_files.append(name)
-    #     else:
-    #         dnn_files.append(name)
+    for name in csv_files:
+        if 'cnn' in name:
+            cnn_files.append(name)
+        else:
+            dnn_files.append(name)
     # for csv_name in cnn_files:
     #     fig, axis = plt.subplots(1, 2)
     #     data = pd.read_csv(csv_name)
