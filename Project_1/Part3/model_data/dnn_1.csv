@@ -1,0 +1,2 @@
+epochs,training_loss,training_accuracy,testing_loss,testing_accuracy
+1,2.3047082666666667,0.09895,2.3054736842105266,0.1163
