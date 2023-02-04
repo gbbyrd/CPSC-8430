@@ -47,14 +47,14 @@
             "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part2"
         },
         {
-            "name": "Part 3",
+            "name": "Part 3_Clean",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": ["--test", "--train", "--all_models", "--epochs", "3", "--batch_size", "512"],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part3"
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part3_clean"
         },
 
 

@@ -123,7 +123,8 @@ def run_model(model_type, checkpoint_path):
         optimizer = optim.Adam
         loss_fn = nn.CrossEntropyLoss()
         
-        models.train_model(model, trainloader_twisted, testloader, epochs, optimizer, loss_fn, device)
+        models.train_model(model, trainloader_twisted, testloader, 
+                           epochs, optimizer, loss_fn, device)
         
         models.save_model(model)
     
