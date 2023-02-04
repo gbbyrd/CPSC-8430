@@ -253,7 +253,7 @@ def count_params(model):
     
     return total_params
 
-def create_model(model_name: str, checkpoint: str):
+def create_model(model_name: str, checkpoint: str = None):
     model = None
     if model_name is None:
         print('Please enter a model type argument')
