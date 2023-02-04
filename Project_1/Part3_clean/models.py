@@ -247,9 +247,9 @@ class DNN_9(nn.Module):
 Training, testing, creating models etc.'''
 
 def count_params(model):
-    total_params = 0
-    for name, parameter in model.named_parameters():
-        total_params += 1
+    total_params = sum(
+        param.numel() for param in model.parameters()
+    )
     
     return total_params
 
