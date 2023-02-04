@@ -316,6 +316,76 @@ class DNN_3(nn.Module):
         x = torch.flatten(x, 1)
         return self.network(x)
     
+class DNN_0(nn.Module):
+    def __init__(self):
+        super(DNN_0, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 200),
+            nn.ReLU(),
+            nn.Linear(200, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_0'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
+class DNN_1(nn.Module):
+    def __init__(self):
+        super(DNN_1, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 300),
+            nn.ReLU(),
+            nn.Linear(300, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_1'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
+class DNN_2(nn.Module):
+    def __init__(self):
+        super(DNN_2, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 512),
+            nn.ReLU(),
+            nn.Linear(512, 200),
+            nn.ReLU(),
+            nn.Linear(200, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_2'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
+class DNN_3(nn.Module):
+    def __init__(self):
+        super(DNN_3, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 200),
+            nn.ReLU(),
+            nn.Linear(200, 128),
+            nn.ReLU(),
+            nn.Linear(128, 200),
+            nn.ReLU(),
+            nn.Linear(200, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_3'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
 class DNN_4(nn.Module):
     def __init__(self):
         super(DNN_4, self).__init__()
@@ -332,21 +402,99 @@ class DNN_4(nn.Module):
         x = torch.flatten(x, 1)
         return self.network(x)
     
+class DNN_5(nn.Module):
+    def __init__(self):
+        super(DNN_5, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 100),
+            nn.ReLU(),
+            nn.Linear(100, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_5'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
+class DNN_6(nn.Module):
+    def __init__(self):
+        super(DNN_6, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_6'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
+class DNN_7(nn.Module):
+    def __init__(self):
+        super(DNN_7, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 200),
+            nn.ReLU(),
+            nn.Linear(200, 10),
+            nn.ReLU(),
+            nn.Linear(10, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_7'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
+class DNN_8(nn.Module):
+    def __init__(self):
+        super(DNN_8, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 50),
+            nn.ReLU(),
+            nn.Linear(50, 100),
+            nn.ReLU(),
+            nn.Linear(100, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_8'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
+class DNN_9(nn.Module):
+    def __init__(self):
+        super(DNN_9, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 1000),
+            nn.ReLU(),
+            nn.Linear(1000, 500),
+            nn.ReLU(),
+            nn.Linear(500, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_9'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
+    
 def create_model(model_type: str, checkpoint: str):
     model = None
     if model_type is None:
         print('Please enter a model type argument')
         exit()
-    elif model_type == 'cnn_0':
-        model = CNN_0()
-    elif model_type == 'cnn_1':
-        model = CNN_1()
-    elif model_type == 'cnn_2':
-        model = CNN_2()
-    elif model_type == 'cnn_3':
-        model = CNN_3()
-    elif model_type == 'cnn_4':
-        model = CNN_4()
     elif model_type == 'dnn_0':
         model = DNN_0()
     elif model_type == 'dnn_1':
@@ -357,6 +505,16 @@ def create_model(model_type: str, checkpoint: str):
         model = DNN_3()
     elif model_type == 'dnn_4':
         model = DNN_4()
+    elif model_type == 'dnn_5':
+        model = DNN_5()
+    elif model_type == 'dnn_6':
+        model = DNN_6()
+    elif model_type == 'dnn_7':
+        model = DNN_7()
+    elif model_type == 'dnn_8':
+        model = DNN_8()
+    elif model_type == 'dnn_9':
+        model = DNN_9()
         
     if checkpoint:
         model = torch.load(checkpoint)

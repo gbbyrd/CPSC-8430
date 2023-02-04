@@ -100,16 +100,16 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
 
 # List of model class names to loop through to train all models at once
 model_list = [
-    'cnn_0',
-    'cnn_1',
-    'cnn_2',
-    'cnn_3',
-    'cnn_4',
     'dnn_0',
     'dnn_1',
     'dnn_2',
     'dnn_3',
-    'dnn_4'
+    'dnn_4',
+    'dnn_5',
+    'dnn_6',
+    'dnn_7',
+    'dnn_8',
+    'dnn_9'
 ]
 
 def run_model(model_type, checkpoint_path):
