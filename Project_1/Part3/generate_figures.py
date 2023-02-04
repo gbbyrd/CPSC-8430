@@ -38,7 +38,7 @@ def generate_figures():
     #     axis[1].legend()
     #     plt.savefig(os.path.join('figures/', csv_name[11:-3]))
     # fig, axis = plt.subplots(1, 2)
-    color_array = ['blue', 'red', 'green', 'yellow', 'black', 'orange']
+    color_array = ['blue', 'red', 'green', 'yellow', 'black', 'orange', 'pink', 'brown', 'purple', 'aqua']
     # for model, csv_name in enumerate(cnn_files):
     #     data = pd.read_csv(csv_name)
     #     data = np.array(data)
@@ -94,9 +94,9 @@ def generate_figures():
         testing_loss = data[:, 3]
         testing_accuracy = data[:, 4]
         axis[0].plot(epochs, training_loss, c=color_array[model], label=f'dnn_{model} train loss')
-        axis[0].plot(epochs, testing_loss, c=color_array[model+3], label=f'dnn_{model} test loss')
+        axis[0].plot(epochs, testing_loss, c=color_array[model+5], label=f'dnn_{model} test loss')
         axis[1].plot(epochs, training_accuracy, c=color_array[model], label=f'dnn_{model} train acc')
-        axis[1].plot(epochs, testing_accuracy, c=color_array[model+3], label=f'dnn_{model} test acc')
+        axis[1].plot(epochs, testing_accuracy, c=color_array[model+5], label=f'dnn_{model} test acc')
     axis[0].legend()
     axis[1].legend()
     axis[0].set_xlabel('epochs')

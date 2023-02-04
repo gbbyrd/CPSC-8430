@@ -105,11 +105,11 @@ model_list = [
     'dnn_2',
     'dnn_3',
     'dnn_4',
-    'dnn_5',
-    'dnn_6',
-    'dnn_7',
-    'dnn_8',
-    'dnn_9'
+    # 'dnn_5',
+    # 'dnn_6',
+    # 'dnn_7',
+    # 'dnn_8',
+    # 'dnn_9'
 ]
 
 def run_model(model_type, checkpoint_path):
