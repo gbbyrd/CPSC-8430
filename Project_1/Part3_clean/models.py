@@ -297,6 +297,8 @@ def save_model(model):
     
 def train_model(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device):
     
+    num_parameters = count_params(model)
+    
     optimizer = optimizer(model.parameters())
     loss_fn = loss_fn
     
@@ -344,7 +346,7 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
         print(f'Average Training Loss: {average_train_loss}, Training Set Accuracy: {training_accuracy}')
         print(f'Average Testing Loss: {average_test_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
         print('-----------------------------------------------------------------------------')
-        training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy])
+        training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy, num_parameters])
         training_running_loss = 0.0
         testing_running_loss = 0.0
         
@@ -357,7 +359,7 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
     if not os.path.exists(csv_name):
         with open(csv_name, 'a') as f:
             writer_object = writer(f)
-            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy'])
+            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy', 'num_parameters'])
             
             f.close()
     

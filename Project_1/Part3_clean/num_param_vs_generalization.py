@@ -11,9 +11,16 @@ We will test this using 10 models training on the MNIST dataset.
 '''
 
 import torch
+import torch.nn as nn
+import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
+import os
+
 import models
+import args
+
+arguments = args.parser.parse_args()
 
 checkpoint_folder_path = 'checkpoints/'
     
@@ -50,9 +57,18 @@ model_name_list = [
     'dnn_9'
 ]
 
-def run_model(model_name, checkpoint_path):
+def run_model(model_name, checkpoint_path=None):
+    optimizer = optim.Adam
+    loss_fn = nn.CrossEntropyLoss()
+    
     model = models.create_model(model_name, checkpoint_path)
-
+    models.train_model(model, trainloader, testloader, arguments.epochs,
+                       optimizer, loss_fn, DEVICE)
+    
 def main():
-    pass
+    for name in model_name_list:
+        run_model(name)
+    
+if __name__ == '__main__':
+    main()
 

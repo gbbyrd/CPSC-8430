@@ -6,6 +6,7 @@ import numpy as np
 import os
 
 def random_fit():
+    ''' Generates figure for the random fit experiment'''
     if not os.path.exists('figures/'):
         os.mkdir('figures/')
         
