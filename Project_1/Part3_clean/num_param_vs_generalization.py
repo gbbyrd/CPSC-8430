@@ -62,6 +62,7 @@ def run_model(model_name, checkpoint_path=None):
     loss_fn = nn.CrossEntropyLoss()
     
     model = models.create_model(model_name, checkpoint_path)
+    model = model.to(DEVICE)
     models.train_model(model, trainloader, testloader, arguments.epochs,
                        optimizer, loss_fn, DEVICE)
     
