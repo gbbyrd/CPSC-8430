@@ -35,9 +35,9 @@ transform = transforms.Compose(
 
 batch_size = 32
 
-trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True,
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True,
                             transform=transform)
-testset = torchvision.datasets.MNIST(root='./data', train=False,
+testset = torchvision.datasets.CIFAR10(root='./data', train=False,
                                      download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size,
                                           shuffle=True, num_workers=2)
