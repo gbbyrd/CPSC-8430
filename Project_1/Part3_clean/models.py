@@ -24,7 +24,7 @@ class DNN_0(nn.Module):
     def __init__(self):
         super(DNN_0, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 200),
+            nn.Linear(3*32*32, 200),
             nn.ReLU(),
             nn.Linear(200, 10)
         )
@@ -40,7 +40,7 @@ class DNN_1(nn.Module):
     def __init__(self):
         super(DNN_1, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 300),
+            nn.Linear(3*32*32, 300),
             nn.ReLU(),
             nn.Linear(300, 10)
         )
@@ -56,7 +56,7 @@ class DNN_2(nn.Module):
     def __init__(self):
         super(DNN_2, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 512),
+            nn.Linear(3*32*32, 512),
             nn.ReLU(),
             nn.Linear(512, 200),
             nn.ReLU(),
@@ -74,7 +74,7 @@ class DNN_3(nn.Module):
     def __init__(self):
         super(DNN_3, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 200),
+            nn.Linear(3*32*32, 200),
             nn.ReLU(),
             nn.Linear(200, 128),
             nn.ReLU(),
@@ -94,7 +94,7 @@ class DNN_4(nn.Module):
     def __init__(self):
         super(DNN_4, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 512),
+            nn.Linear(3*32*32, 512),
             nn.ReLU(),
             nn.Linear(512, 10)
         )
@@ -110,7 +110,7 @@ class DNN_5(nn.Module):
     def __init__(self):
         super(DNN_5, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 100),
+            nn.Linear(3*32*32, 100),
             nn.ReLU(),
             nn.Linear(100, 10)
         )
@@ -126,7 +126,7 @@ class DNN_6(nn.Module):
     def __init__(self):
         super(DNN_6, self).__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 512),
+            nn.Linear(3*32*32, 512),
             nn.ReLU(),
             nn.Linear(512, 512),
             nn.ReLU(),
@@ -143,7 +143,7 @@ class DNN_6(nn.Module):
 class DNN_7(nn.Module):
     def __init__(self) -> None:
         super(DNN_7, self).__init__()
-        self.fc1 = nn.Linear(1*28*28, 100)
+        self.fc1 = nn.Linear(3*32*32, 100)
         self.fc2 = nn.Linear(100, 200)
         self.fc3 = nn.Linear(200, 300)
         self.fc4 = nn.Linear(300, 300)
@@ -186,7 +186,7 @@ class DNN_7(nn.Module):
 class DNN_8(nn.Module):
     def __init__(self) -> None:
         super(DNN_8, self).__init__()
-        self.fc1 = nn.Linear(1*28*28, 200)
+        self.fc1 = nn.Linear(3*32*32, 200)
         self.fc2 = nn.Linear(200, 100)
         self.fc3 = nn.Linear(100, 100)
         self.fc3 = nn.Linear(100, 55)
@@ -212,7 +212,7 @@ class DNN_9(nn.Module):
     
     def __init__(self) -> None:
         super(DNN_9, self).__init__()
-        self.fc1 = nn.Linear(1*28*28, 400)
+        self.fc1 = nn.Linear(3*32*32, 400)
         self.fc2 = nn.Linear(400, 500)
         self.fc3 = nn.Linear(500, 1000)
         self.fc4 = nn.Linear(1000, 700)
