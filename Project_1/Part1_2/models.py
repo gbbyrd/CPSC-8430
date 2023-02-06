@@ -1,148 +1,193 @@
 import torch
 import torch.nn as nn
-import os
-from csv import writer
 import torch.nn.functional as F
+from csv import writer
+import os
+import numpy as np
 
-class DNN_Random_Fit(nn.Module):
+# Base model to improve upon
+class CNN_0(nn.Module):
     def __init__(self):
-        super(DNN_Random_Fit, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(1*28*28, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10)
-        )
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 64, 5, padding=3)
+        self.batch1 = nn.BatchNorm2d(64)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.dropout = nn.Dropout(0.25)
+        self.conv2 = nn.Conv2d(64, 64, 5, padding=3)
+        self.conv3 = nn.Conv2d(64, 10, 5)
+        self.batch2 = nn.BatchNorm2d(10)
+        self.fc1 = nn.Linear(40, 145)
+        self.fc2 = nn.Linear(145, 30)
+        self.fc3 = nn.Linear(30, 10)
         
+        # Keep track of training epochs for loading and continuing
+        # model training
         self.training_epochs = 0
-        self.name = 'dnn_random_fit'
+        self.name = 'cnn_0'
         
     def forward(self, x):
-        x = torch.flatten(x, 1)
-        return self.network(x)
-    
-class DNN_0(nn.Module):
-    def __init__(self):
-        super(DNN_0, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(3*32*32, 200),
-            nn.ReLU(),
-            nn.Linear(200, 10)
-        )
+        # Conv Layer 1
+        x = self.conv1(x)
+        x = F.relu(self.batch1(x))
         
+        # Pooling Layer 1
+        x = self.pool(x)
+        
+        # Droupout
+        x = self.dropout(x)
+        
+        # Conv Layer 2 
+        x = self.conv2(x)
+        x = F.relu(self.batch1(x))
+        
+        # Pooling Layer 2
+        x = self.pool(x)
+        
+        # Droupout
+        x = self.dropout(x)
+        
+        # Conv Layer 3
+        x = self.conv3(x)
+        x = F.relu(self.batch2(x))
+        
+        # Pooling layer 3
+        x = self.pool(x)
+        
+        # Droupout
+        x = self.dropout(x)
+        
+        # Flatten tensor for FCLs
+        x = torch.flatten(x, 1)
+        # Fully Connected Layers
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        
+        return x
+
+class CNN_1(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 32, 4)
+        self.batch1 = nn.BatchNorm2d(32)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(32, 32, 4)
+        self.batch2 = nn.BatchNorm2d(32)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(800, 256)
+        self.fc2 = nn.Linear(256, 10)
+        
+        self.training_epochs = 0
+        self.name = 'cnn_1'
+    def forward(self, x):
+        act_func = F.relu
+        x = self.conv1(x)
+        x = act_func(self.batch1(x))
+        x = self.pool1(x)
+        x = self.conv2(x)
+        x = act_func(self.batch2(x))
+        x = self.pool2(x)
+        x = torch.flatten(x, 1)
+        x = act_func(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+# Adds dropout to the cnn_2 model
+class CNN_2(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 32, 4)
+        self.batch1 = nn.BatchNorm2d(32)
+        self.pool1 = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(32, 32, 4)
+        self.batch2 = nn.BatchNorm2d(32)
+        self.pool2 = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(800, 256)
+        self.fc2 = nn.Linear(256, 10)
+        
+        self.dropout = nn.Dropout(.25)
+        
+        self.training_epochs = 0
+        self.name = 'cnn_2'
+    def forward(self, x):
+        act_func = F.relu
+        x = self.conv1(x)
+        x = act_func(self.batch1(x))
+        x = self.pool1(x)
+        x = self.dropout(x)
+        x = self.conv2(x)
+        x = act_func(self.batch2(x))
+        x = self.pool2(x)
+        x = self.dropout(x)
+        x = torch.flatten(x, 1)
+        x = act_func(self.fc1(x))
+        x = self.fc2(x)
+        return x
+    
+# Base model to improve upon
+class DNN_0(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.fc1 = nn.Linear(3*32*32, 200)
+        self.fc2 = nn.Linear(200, 100)
+        self.fc3 = nn.Linear(100, 100)
+        self.fc3 = nn.Linear(100, 55)
+        self.fc4 = nn.Linear(55, 10)
+        
+        # Keep track of training epochs for loading and continuing
+        # model training
         self.training_epochs = 0
         self.name = 'dnn_0'
         
     def forward(self, x):
+        activation_func = F.relu
+        # Flatten the rgb data
         x = torch.flatten(x, 1)
-        return self.network(x)
+        x = activation_func(self.fc1(x))
+        x = activation_func(self.fc2(x))
+        x = activation_func(self.fc3(x))
+        x = self.fc4(x)
+        
+        return x
     
 class DNN_1(nn.Module):
-    def __init__(self):
-        super(DNN_1, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(3*32*32, 300),
-            nn.ReLU(),
-            nn.Linear(300, 10)
-        )
+    
+    def __init__(self) -> None:
+        super().__init__()
+        self.fc1 = nn.Linear(3*32*32, 400)
+        self.fc2 = nn.Linear(400, 500)
+        self.fc3 = nn.Linear(500, 1000)
+        self.fc4 = nn.Linear(1000, 700)
+        self.fc5 = nn.Linear(700, 400)
+        self.fc6 = nn.Linear(400, 50)
+        self.fc7 = nn.Linear(50, 10)
+        self.dropout = nn.Dropout(.25)
         
         self.training_epochs = 0
         self.name = 'dnn_1'
         
     def forward(self, x):
+        activation_func = F.relu
         x = torch.flatten(x, 1)
-        return self.network(x)
-    
+        x = activation_func(self.fc1(x))
+        x = self.dropout(x)
+        x = activation_func(self.fc2(x))
+        x = self.dropout(x)
+        x = activation_func(self.fc3(x))
+        x = self.dropout(x)
+        x = activation_func(self.fc4(x))
+        x = self.dropout(x)
+        x = activation_func(self.fc5(x))
+        x = self.dropout(x)
+        x = activation_func(self.fc6(x))
+        x = self.dropout(x)
+        x = self.fc7(x)
+        
+        return x
+        
 class DNN_2(nn.Module):
-    def __init__(self):
-        super(DNN_2, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(3*32*32, 512),
-            nn.ReLU(),
-            nn.Linear(512, 200),
-            nn.ReLU(),
-            nn.Linear(200, 10)
-        )
-        
-        self.training_epochs = 0
-        self.name = 'dnn_2'
-        
-    def forward(self, x):
-        x = torch.flatten(x, 1)
-        return self.network(x)
-    
-class DNN_3(nn.Module):
-    def __init__(self):
-        super(DNN_3, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(3*32*32, 200),
-            nn.ReLU(),
-            nn.Linear(200, 128),
-            nn.ReLU(),
-            nn.Linear(128, 200),
-            nn.ReLU(),
-            nn.Linear(200, 10)
-        )
-        
-        self.training_epochs = 0
-        self.name = 'dnn_3'
-        
-    def forward(self, x):
-        x = torch.flatten(x, 1)
-        return self.network(x)
-    
-class DNN_4(nn.Module):
-    def __init__(self):
-        super(DNN_4, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(3*32*32, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10)
-        )
-        
-        self.training_epochs = 0
-        self.name = 'dnn_4'
-        
-    def forward(self, x):
-        x = torch.flatten(x, 1)
-        return self.network(x)
-    
-class DNN_5(nn.Module):
-    def __init__(self):
-        super(DNN_5, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(3*32*32, 100),
-            nn.ReLU(),
-            nn.Linear(100, 10)
-        )
-        
-        self.training_epochs = 0
-        self.name = 'dnn_5'
-        
-    def forward(self, x):
-        x = torch.flatten(x, 1)
-        return self.network(x)
-    
-class DNN_6(nn.Module):
-    def __init__(self):
-        super(DNN_6, self).__init__()
-        self.network = nn.Sequential(
-            nn.Linear(3*32*32, 512),
-            nn.ReLU(),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10)
-        )
-        
-        self.training_epochs = 0
-        self.name = 'dnn_6'
-        
-    def forward(self, x):
-        x = torch.flatten(x, 1)
-        return self.network(x)
-    
-class DNN_7(nn.Module):
     def __init__(self) -> None:
-        super(DNN_7, self).__init__()
+        super().__init__()
         self.fc1 = nn.Linear(3*32*32, 100)
         self.fc2 = nn.Linear(100, 200)
         self.fc3 = nn.Linear(200, 300)
@@ -156,7 +201,7 @@ class DNN_7(nn.Module):
         self.dropout = nn.Dropout(.25)
         
         self.training_epochs = 0
-        self.name = 'dnn_7'
+        self.name = 'dnn_2'
         
     def forward(self, x):
         activation_func = F.relu
@@ -182,104 +227,25 @@ class DNN_7(nn.Module):
         x = self.fc10(x)
         
         return x
+        
     
-class DNN_8(nn.Module):
-    def __init__(self) -> None:
-        super(DNN_8, self).__init__()
-        self.fc1 = nn.Linear(3*32*32, 200)
-        self.fc2 = nn.Linear(200, 100)
-        self.fc3 = nn.Linear(100, 100)
-        self.fc3 = nn.Linear(100, 55)
-        self.fc4 = nn.Linear(55, 10)
-        
-        # Keep track of training epochs for loading and continuing
-        # model training
-        self.training_epochs = 0
-        self.name = 'dnn_8'
-        
-    def forward(self, x):
-        activation_func = F.relu
-        # Flatten the rgb data
-        x = torch.flatten(x, 1)
-        x = activation_func(self.fc1(x))
-        x = activation_func(self.fc2(x))
-        x = activation_func(self.fc3(x))
-        x = self.fc4(x)
-        
-        return x
-    
-class DNN_9(nn.Module):
-    
-    def __init__(self) -> None:
-        super(DNN_9, self).__init__()
-        self.fc1 = nn.Linear(3*32*32, 400)
-        self.fc2 = nn.Linear(400, 500)
-        self.fc3 = nn.Linear(500, 1000)
-        self.fc4 = nn.Linear(1000, 700)
-        self.fc5 = nn.Linear(700, 400)
-        self.fc6 = nn.Linear(400, 50)
-        self.fc7 = nn.Linear(50, 10)
-        self.dropout = nn.Dropout(.25)
-        
-        self.training_epochs = 0
-        self.name = 'dnn_9'
-        
-    def forward(self, x):
-        activation_func = F.relu
-        x = torch.flatten(x, 1)
-        x = activation_func(self.fc1(x))
-        x = self.dropout(x)
-        x = activation_func(self.fc2(x))
-        x = self.dropout(x)
-        x = activation_func(self.fc3(x))
-        x = self.dropout(x)
-        x = activation_func(self.fc4(x))
-        x = self.dropout(x)
-        x = activation_func(self.fc5(x))
-        x = self.dropout(x)
-        x = activation_func(self.fc6(x))
-        x = self.dropout(x)
-        x = self.fc7(x)
-        
-        return x
-    
-'''Model related functions:
-Training, testing, creating models etc.'''
-
-def count_params(model):
-    total_params = sum(
-        param.numel() for param in model.parameters()
-    )
-    
-    return total_params
-
-def create_model(model_name: str, checkpoint: str = None):
+def create_model(model_type: str, checkpoint: str):
     model = None
-    if model_name is None:
+    if model_type is None:
         print('Please enter a model type argument')
         exit()
-    elif model_name == 'dnn_0':
+    elif model_type == 'cnn_0':
+        model = CNN_0()
+    elif model_type == 'cnn_1':
+        model = CNN_1()
+    elif model_type == 'cnn_2':
+        model = CNN_2()
+    elif model_type == 'dnn_0':
         model = DNN_0()
-    elif model_name == 'dnn_1':
+    elif model_type == 'dnn_1':
         model = DNN_1()
-    elif model_name == 'dnn_2':
+    elif model_type == 'dnn_2':
         model = DNN_2()
-    elif model_name == 'dnn_3':
-        model = DNN_3()
-    elif model_name == 'dnn_4':
-        model = DNN_4()
-    elif model_name == 'dnn_5':
-        model = DNN_5()
-    elif model_name == 'dnn_6':
-        model = DNN_6()
-    elif model_name == 'dnn_7':
-        model = DNN_7()
-    elif model_name == 'dnn_8':
-        model = DNN_8()
-    elif model_name == 'dnn_9':
-        model = DNN_9()
-    elif model_name == 'dnn_random_fit':
-        model = DNN_Random_Fit()
         
     if checkpoint:
         model = torch.load(checkpoint)
@@ -297,8 +263,6 @@ def save_model(model):
     
 def train_model(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device):
     
-    num_parameters = count_params(model)
-    
     optimizer = optimizer(model.parameters())
     loss_fn = loss_fn
     
@@ -308,6 +272,7 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
     
     training_running_loss = 0.0
     testing_running_loss = 0.0
+    batch_size = 0
     
     print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////')
         
@@ -316,6 +281,7 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
         test_count = 0
         for batch, (img, label) in enumerate(training_dataloader):
             
+            batch_size = len(img)
             img = img.to(device)
             label = label.to(device)
             pred = model(img)
@@ -344,20 +310,18 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
         print(f'Average Training Loss: {average_train_loss}, Training Set Accuracy: {training_accuracy}')
         print(f'Average Testing Loss: {average_test_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
         print('-----------------------------------------------------------------------------')
-        training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy, num_parameters])
+        training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy])
         training_running_loss = 0.0
         testing_running_loss = 0.0
         
     print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
-    # Create model_data directory
-    if not os.path.exists('model_data/'):
-        os.mkdir('model_data/')
+    
     
     # Write training data to csv file
     if not os.path.exists(csv_name):
         with open(csv_name, 'a') as f:
             writer_object = writer(f)
-            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy', 'num_parameters'])
+            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy'])
             
             f.close()
     
