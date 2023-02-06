@@ -50,10 +50,13 @@ def main():
     # Define optimizer and criterion
     optimizer = optim.Adam()
     criterion = nn.CrossEntropyLoss()
-    epochs = 100
+    exp_1_epochs = 100
     
-    models.train_model_grad_norm(model, trainloader, testloader, epochs,
+    # Trains the model and records the loss and gradient norm for comparison
+    models.train_model_grad_norm_exp1(model, trainloader, testloader, exp_1_epochs,
                        optimizer, criterion, device)
+    
+    
     
 if __name__ == '__main__':
     main()

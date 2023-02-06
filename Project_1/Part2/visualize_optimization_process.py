@@ -38,7 +38,7 @@ testloader = DataLoader(testset, batch_size=arguments.batch_size,
 def main():
     
     # Create model, define optimizers and criterion
-    model = models.DNN_0()
+    model = models.DNN_1()
     
     optimizer = optim.Adam
     criterion = nn.CrossEntropyLoss()

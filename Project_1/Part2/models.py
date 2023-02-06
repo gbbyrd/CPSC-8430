@@ -29,6 +29,22 @@ class DNN_0(nn.Module):
         x = self.lout(x)
         
         return x
+    
+class DNN_1(nn.Module):
+    def __init__(self):
+        super(DNN_1, self).__init__()
+        self.network = nn.Sequential(
+            nn.Linear(1*28*28, 300),
+            nn.ReLU(),
+            nn.Linear(300, 10)
+        )
+        
+        self.training_epochs = 0
+        self.name = 'dnn_1'
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        return self.network(x)
 
 def train_model_weight_pca(model, trainloader, testloader, epochs, 
                 optimizer, loss_fn, device):
@@ -86,7 +102,7 @@ def train_model_weight_pca(model, trainloader, testloader, epochs,
     print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
 
     
-def train_model_grad_norm(model, trainloader, testloader, epochs, 
+def train_model_grad_norm_exp1(model, trainloader, testloader, epochs, 
                 optimizer, loss_fn, device):
     
     optimizer = optimizer(model.parameters())
@@ -142,6 +158,10 @@ def train_model_grad_norm(model, trainloader, testloader, epochs,
         
     print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
             
+def train_model_grad_norm_exp2(model, trainloader, epochs,
+                               optimizer, criterion, device):
+    pass
+
 def get_grad_norm(model):
     
     grad_all = 0.0
