@@ -1,0 +1,6 @@
+Visualize the optimization process:
+
+run the following commands to train the models and generate a scatterplot
+
+python3 visualize_optimization_process.py --train --test --epochs 51 --model_type dnn_1 --batch_size 32
+python3 plot_pca.py
