@@ -100,7 +100,7 @@ def train_model_pca(model, training_dataloader, testing_dataloader, epochs, opti
                 testing_running_loss += testing_loss
                 test_count += 1
         print(f'Epoch {epoch + 1} completed')
-        if epoch % 1 == 0:
+        if epoch % 3 == 0:
             for name, param in model.named_parameters():
                 print(param.view(-1))
                 first_layer_weights.append(param.view(-1).detach().cpu().numpy().flatten())
