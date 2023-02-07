@@ -25,7 +25,6 @@ class DNN_0(nn.Module):
         x = activation_func(self.lin(x))
         x = activation_func(self.fc1(x))
         x = activation_func(self.fc2(x))
-        x = activation_func(self.lout(x))
         x = self.lout(x)
         
         return x
@@ -71,11 +70,14 @@ def train_model_weight_pca(model, trainloader, testloader, epochs,
             loss.backward()
             optimizer.step()
         
+        print(f'Epoch {epoch + 1} completed..')
+        
         # Get dimensionally reduced weight values
         if epoch % 3 == 0:
             # Get the weight tensor
             for name, param in model.named_parameters():
                 first_layer_weights.append(param.view(-1))
+                break
         
     # Convert list of tensors to one tensor
     first_layer_weights = torch.stack(first_layer_weights)
@@ -160,7 +162,24 @@ def train_model_grad_norm_exp1(model, trainloader, testloader, epochs,
             
 def train_model_grad_norm_exp2(model, trainloader, epochs,
                                optimizer, criterion, device):
-    pass
+    
+    optimizer = optimizer(model.parameters())
+    
+    
+    
+    '''Train on the initial loss function for 4 epochs, then switch loss
+    function to gradient norm'''
+    
+    for epochs in range(4):
+        
+        for x, y in trainloader:
+            x = x.to(device)
+            y = y.to(device)
+            
+            pred = model(x)
+            loss = criterion(pred, y)
+            
+            
 
 def get_grad_norm(model):
     
@@ -169,7 +188,7 @@ def get_grad_norm(model):
     for p in model.parameters():
         grad = 0.0
         if p.grad is not None:
-            grad = (p.grad.cpu().data.numpy() ** 2).sum()
+            grad = torch.sum((p.grad.cpu().data.numpy() ** 2))
         grad_all += grad
         
     return grad_all ** 0.5

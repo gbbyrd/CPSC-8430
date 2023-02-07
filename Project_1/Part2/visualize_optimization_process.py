@@ -39,6 +39,7 @@ def main():
     
     # Create model, define optimizers and criterion
     model = models.DNN_1()
+    model = model.to(device)
     
     optimizer = optim.Adam
     criterion = nn.CrossEntropyLoss()
