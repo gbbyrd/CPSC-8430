@@ -4,6 +4,8 @@ import torch.nn.functional as F
 from csv import writer
 import os
 import numpy as np
+from sklearn import preprocessing
+from sklearn.decomposition import PCA
 
 # Base model to improve upon
 class CNN_0(nn.Module):
@@ -227,6 +229,22 @@ class DNN_2(nn.Module):
         x = self.fc10(x)
         
         return x
+    
+class DNN_3(nn.Module):
+    def __init__(self):
+        super(DNN_3, self).__init__()
+        self.fc1 = nn.Linear(3*32*32, 16)
+        self.fc2 = nn.Linear(16, 10)
+        
+        self.training_epochs = 0
+        self.name = 'dnn_3'
+        
+    def forward(self, x):
+        activation_func = F.relu
+        x = torch.flatten(x, 1)
+        x = activation_func(self.fc1(x))
+        x = self.fc2(x)
+        return x
         
     
 def create_model(model_type: str, checkpoint: str):
@@ -246,6 +264,8 @@ def create_model(model_type: str, checkpoint: str):
         model = DNN_1()
     elif model_type == 'dnn_2':
         model = DNN_2()
+    elif model_type == 'dnn_3':
+        model = DNN_3()
         
     if checkpoint:
         model = torch.load(checkpoint)
@@ -263,6 +283,82 @@ def save_model(model):
     
 def train_model(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device):
     
+    first_layer_weights = []
+    optimizer = optimizer(model.parameters())
+    loss_fn = loss_fn
+    
+    training_info = []
+    
+    csv_name = 'model_data/' + model.name + '.csv'
+    
+    training_running_loss = 0.0
+    testing_running_loss = 0.0
+    batch_size = 0
+    
+    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////')
+        
+    for epoch in range(epochs):
+        train_count = 0
+        test_count = 0
+        for batch, (img, label) in enumerate(training_dataloader):
+            
+            batch_size = len(img)
+            img = img.to(device)
+            label = label.to(device)
+            pred = model(img)
+            loss = loss_fn(pred, label)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            training_running_loss += loss
+            train_count += 1
+            if batch % 100 == 0:
+                test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+                testing_running_loss += testing_loss
+                test_count += 1
+                
+        for name, param in model.named_parameters():
+            print(param.view(-1))
+            first_layer_weights.append(param.view(-1).detach().cpu().numpy().flatten())
+            break
+            
+            
+        total_epochs = model.training_epochs+epoch+1
+        training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
+        testing_running_loss = round(testing_running_loss.detach().cpu().item(), 3)
+        train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader, loss_fn, device)
+        test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+        average_train_loss = training_running_loss/(train_count)
+        average_test_loss = testing_running_loss/(test_count)
+        print(f'Total Epochs: {total_epochs}, Training Ex Per Epoch: {train_total_examples}')
+        print(f'Average Training Loss: {average_train_loss}, Training Set Accuracy: {training_accuracy}')
+        print(f'Average Testing Loss: {average_test_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
+        print('-----------------------------------------------------------------------------')
+        training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy])
+        training_running_loss = 0.0
+        testing_running_loss = 0.0
+    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
+    
+    
+    # Write training data to csv file
+    if not os.path.exists(csv_name):
+        with open(csv_name, 'a') as f:
+            writer_object = writer(f)
+            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy'])
+            
+            f.close()
+    
+    with open(csv_name, 'a') as f:
+        writer_object = writer(f)
+        writer_object.writerows(training_info)
+    
+    model.training_epochs += epochs
+    
+def train_model_pca(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device):
+    
+    first_layer_weights = []
     optimizer = optimizer(model.parameters())
     loss_fn = loss_fn
     
@@ -298,6 +394,10 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
                 testing_running_loss += testing_loss
                 test_count += 1
             
+        for name, param in model.named_parameters():
+            print(param.view(-1))
+            #first_layer_weights.append(param.view(-1).detach().cpu().numpy().flatten())
+            break
             
         total_epochs = model.training_epochs+epoch+1
         training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
@@ -314,6 +414,23 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
         training_running_loss = 0.0
         testing_running_loss = 0.0
         
+    # # PCA analysis
+    
+    # # convert the first layer weight list into proper data structure for pca
+    # first_layer_weights = np.array(first_layer_weights)
+    
+    # # Scale the weight data
+    # scaling = preprocessing.StandardScaler()
+    
+    # scaling.fit(first_layer_weights)
+    # scaled_weights = scaling.transform(first_layer_weights)
+    
+    # pca = PCA(n_components=2)
+    # pca.fit(scaled_weights)
+    
+    # first_layer_pca = pca.transform(scaled_weights)
+    
+    # print(first_layer_pca)
     print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
     
     

@@ -1,12 +1,6 @@
-'''
-Grayson Byrd
+'''Part 2 of Project 1
 
-Part 2 - Visualize the optimization process.
-
-This code uses PCA and the first layer weights of the network to depict
-the optimization process. To run this file, use the following command:
-
-python3 visualize_optimization_process.py --train --test --epochs 100 --model_type dnn_1 --batch_size 32
+This file allows us to visualize the optimization process
 '''
 
 import torch
@@ -17,6 +11,7 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 import numpy as np
 import models
+import generate_figures
 import args
 import os
 import glob
@@ -43,8 +38,7 @@ print(device)
 
 # Set transform variable to transform data to normalized tensor
 transform = transforms.Compose(
-    [transforms.ToTensor(),
-     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+    [transforms.ToTensor()]
 )
 
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
@@ -68,7 +62,7 @@ def run_model(model_type, checkpoint_path):
         optimizer = optim.Adam
         loss_fn = nn.CrossEntropyLoss()
         
-        models.train_model_pca(model, trainloader, testloader, epochs, optimizer, loss_fn, device)
+        models.train_model(model, trainloader, testloader, epochs, optimizer, loss_fn, device)
         
         models.save_model(model)
     
@@ -86,7 +80,10 @@ def run_model(model_type, checkpoint_path):
 
 def main():
     
+    model_type = 'dnn_3'
     run_model(model_type, checkpoint_path)
+
+    generate_figures.generate_figures()
     
         
 if __name__=='__main__':

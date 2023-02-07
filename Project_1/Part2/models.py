@@ -7,6 +7,7 @@ import numpy as np
 import csv
 import os
 from sklearn.decomposition import PCA
+from sklearn import preprocessing
 from csv import writer
 
 class DNN_0(nn.Module):
@@ -31,11 +32,11 @@ class DNN_0(nn.Module):
     
 class DNN_1(nn.Module):
     def __init__(self):
-        super(DNN_1, self).__init__()
+        super().__init__()
         self.network = nn.Sequential(
-            nn.Linear(1*28*28, 300),
+            nn.Linear(3*32*32, 16),
             nn.ReLU(),
-            nn.Linear(300, 10)
+            nn.Linear(16, 10)
         )
         
         self.training_epochs = 0
@@ -44,65 +45,136 @@ class DNN_1(nn.Module):
     def forward(self, x):
         x = torch.flatten(x, 1)
         return self.network(x)
+    
+def create_model(model_type: str, checkpoint: str = None):
+    model = None
+    if model_type is None:
+        print('Please enter a model type argument')
+        exit()
+  
+    elif model_type == 'dnn_0':
+        model = DNN_0()
+    elif model_type == 'dnn_1':
+        model = DNN_1()
 
-def train_model_weight_pca(model, trainloader, testloader, epochs, 
-                optimizer, loss_fn, device):
+    if checkpoint:
+        model = torch.load(checkpoint)
+        
+    return model
     
-    # Create PCA object for dimension reduction
-    pca = PCA(n_components=2)
+def train_model_pca(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device, count):
+    
     first_layer_weights = []
-    
     optimizer = optimizer(model.parameters())
+    loss_fn = loss_fn
     
-    csv_name = 'model_data/' + model.name + '_pca.csv'
+    training_info = []
     
-    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
+    csv_name = f'model_data/{model.name}_{count}.csv'
     
+    training_running_loss = 0.0
+    testing_running_loss = 0.0
+    batch_size = 0
+    
+    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////')
+        
     for epoch in range(epochs):
-        for batch, (x, y) in enumerate(trainloader):
+        train_count = 0
+        test_count = 0
+        for batch, (img, label) in enumerate(training_dataloader):
             
-            x = x.to(device)
-            y = y.to(device)
-            pred = model(x)
-            loss = loss_fn(pred, y)
+            batch_size = len(img)
+            img = img.to(device)
+            label = label.to(device)
+            pred = model(img)
+            loss = loss_fn(pred, label)
             
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        
-        print(f'Epoch {epoch + 1} completed..')
-        
-        # Get dimensionally reduced weight values
+            
+            training_running_loss += loss
+            train_count += 1
+            if batch % 100 == 0:
+                test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+                testing_running_loss += testing_loss
+                test_count += 1
+        print(f'Epoch {epoch + 1} completed')
         if epoch % 3 == 0:
-            # Get the weight tensor
             for name, param in model.named_parameters():
-                first_layer_weights.append(param.view(-1))
+                print(param.view(-1))
+                first_layer_weights.append(param.view(-1).detach().cpu().numpy().flatten())
                 break
+            
+        total_epochs = model.training_epochs+epoch+1
+        # training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
+        # testing_running_loss = round(testing_running_loss.detach().cpu().item(), 3)
+        # train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader, loss_fn, device)
+        # test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+        # average_train_loss = training_running_loss/(train_count)
+        # average_test_loss = testing_running_loss/(test_count)
+        # print(f'Total Epochs: {total_epochs}, Training Ex Per Epoch: {train_total_examples}')
+        # print(f'Average Training Loss: {average_train_loss}, Training Set Accuracy: {training_accuracy}')
+        # print(f'Average Testing Loss: {average_test_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
+        # print('-----------------------------------------------------------------------------')
+        # training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy])
+        # training_running_loss = 0.0
+        # testing_running_loss = 0.0
         
-    # Convert list of tensors to one tensor
-    first_layer_weights = torch.stack(first_layer_weights)
+    # PCA analysis
     
-    pca_first_layer_weights = pca.fit_transform(first_layer_weights)
+    # convert the first layer weight list into proper data structure for pca
+    first_layer_weights = np.array(first_layer_weights)
     
-    # Write the data to a .csv file
+    # Scale the weight data
+    scaling = preprocessing.StandardScaler()
+    
+    scaling.fit(first_layer_weights)
+    scaled_weights = scaling.transform(first_layer_weights)
+    
+    pca = PCA(n_components=2)
+    pca.fit(scaled_weights)
+    
+    first_layer_pca = pca.transform(scaled_weights)
+    
+    print(first_layer_pca)
+    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
+    
     # Create model_data directory
     if not os.path.exists('model_data/'):
         os.mkdir('model_data/')
-    
+        
     # Write training data to csv file
     if not os.path.exists(csv_name):
         with open(csv_name, 'a') as f:
             writer_object = writer(f)
-            writer_object.writerow(['epochs', 'pca_1', 'pca_2'])
+            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy'])
             
             f.close()
     
     with open(csv_name, 'a') as f:
         writer_object = writer(f)
-        writer_object.writerows(pca_first_layer_weights)
-        
-    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
-
+        writer_object.writerows(training_info)
+    
+    model.training_epochs += epochs
+    
+def test_accuracy(model, dataloader, loss_fn, device):
+    total = 0
+    correct = 0
+    
+    with torch.no_grad():
+        for  batch, (img, label) in enumerate(dataloader):
+            img = img.to(device)
+            label = label.to(device)
+            pred = model(img)
+            loss = loss_fn(pred, label)
+            
+            _, predictions = torch.max(pred, 1)
+            
+            total += label.size(0)
+            correct += (predictions == label).sum().item()
+            
+    return total, correct/total, loss
     
 def train_model_grad_norm_exp1(model, trainloader, testloader, epochs, 
                 optimizer, loss_fn, device):

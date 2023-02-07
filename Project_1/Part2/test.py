@@ -1,72 +1,66 @@
-import torch
-import torch.nn as nn
+# import all libraries
+import pandas as pd
 import numpy as np
-from torch.utils.data import Dataset, DataLoader
-import models
-from torch import optim
+import matplotlib.pyplot as plt
+# %matplotlib inline
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
-device = ('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
-    
-# Create custom dataset for chosen function
-class FunctionDataset(Dataset):
-    def __init__(self, function, test=False):
-        self.x = np.linspace(-5, 5, num=200).reshape(-1, 1)
-        self.x = torch.from_numpy(self.x).float()
-        self.y = self.test_functions(self.x, function)
-        if test:
-            self.x = np.linspace(-5, 5, num=137).reshape(-1, 1)
-            self.x = torch.from_numpy(self.x).float()
-            self.y = self.test_functions(self.x, function)
-            
-    def __getitem__(self, idx):
-        return self.x[idx], self.y[idx]
-        
-    def __len__(self):
-        return len(self.x)
-    
-    def test_functions(self, x, function: str):
-        funcs = {
-            'cosine': np.cos(x), # cosine function
-            'sine': np.sin(x), # sine function
-            'exponential': np.exp(x), # exponential function
-            'power': np.power(x, 3), # cubic function
-            'quadratic': np.power(x, 2), # quadratic
-            'crazy_sin': np.sin(5*np.pi*x)/(5 * np.pi * x)
-        }
-        return funcs.get(function)
-    
-def main():
-    # Choose function
-    chosen_function = 'crazy_sin'
-    
-    # Create dataset and dataloader
-    trainset = FunctionDataset(chosen_function)
-    testset = FunctionDataset(chosen_function, test=True)
-    trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
-    testloader = DataLoader(testset, batch_size=32, shuffle=False)
-    
-    ''' Experiment 1 '''
-    # Create model
-    model_exp1 = models.DNN_0(device)
-    
-    # Define optimizer and criterion
-    optimizer = optim.Adam(model_exp1.parameters())
-    criterion = nn.CrossEntropyLoss()
-    exp_1_epochs = 100
-    
-    for x, y in trainloader:
-        x = x.to(device)
-        y = y.to(device)
-        
-        pred = model_exp1(x)
-        loss = criterion(pred, y)
-        
-        print(type(loss))
-        break
-    
-    
-    
-if __name__ == '__main__':
-    main()
-    
+#import the breast _cancer dataset
+from sklearn.datasets import load_breast_cancer
+data=load_breast_cancer()
+data.keys()
+
+# Check the output classes
+print(data['target_names'])
+
+# Check the input attributes
+print(data['feature_names'])
+
+print(data['data'])
+
+# construct a dataframe using pandas
+df1=pd.DataFrame(data['data'],columns=data['feature_names'])
+
+print(df1)
+
+# Scale data before applying PCA
+scaling=StandardScaler()
+
+# Use fit and transform method
+scaling.fit(df1)
+Scaled_data=scaling.transform(df1)
+
+# Set the n_components=3
+principal=PCA(n_components=3)
+principal.fit(Scaled_data)
+x=principal.transform(Scaled_data)
+
+# Check the dimensions of data after PCA
+print(x.shape)
+
+# Check the values of eigen vectors
+# prodeced by principal components
+principal.components_
+
+plt.figure(figsize=(10,10))
+plt.scatter(x[:,0],x[:,1],c=data['target'],cmap='plasma')
+plt.xlabel('pc1')
+plt.ylabel('pc2')
+
+# import relevant libraries for 3d graph
+from mpl_toolkits.mplot3d import Axes3D
+fig = plt.figure(figsize=(10,10))
+
+# choose projection 3d for creating a 3d graph
+axis = fig.add_subplot(111, projection='3d')
+
+# x[:,0]is pc1,x[:,1] is pc2 while x[:,2] is pc3
+axis.scatter(x[:,0],x[:,1],x[:,2], c=data['target'],cmap='plasma')
+axis.set_xlabel("PC1", fontsize=10)
+axis.set_ylabel("PC2", fontsize=10)
+axis.set_zlabel("PC3", fontsize=10)
+
+# check how much variance is explained by each principal component
+print(principal.explained_variance_ratio_)
+
