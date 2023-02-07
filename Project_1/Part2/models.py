@@ -148,13 +148,13 @@ def train_model_pca(model, training_dataloader, testing_dataloader, epochs, opti
     if not os.path.exists(csv_name):
         with open(csv_name, 'a') as f:
             writer_object = writer(f)
-            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy'])
+            writer_object.writerow(['epochs', 'pca_1', 'pca_2'])
             
             f.close()
     
     with open(csv_name, 'a') as f:
         writer_object = writer(f)
-        writer_object.writerows(training_info)
+        writer_object.writerows(first_layer_pca)
     
     model.training_epochs += epochs
     

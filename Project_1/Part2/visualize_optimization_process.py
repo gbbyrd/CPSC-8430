@@ -57,7 +57,7 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
 testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                          shuffle=False, num_workers=2)
 
-def run_model(model_type, checkpoint_path):
+def run_model(model_type, checkpoint_path, count):
     
     model = models.create_model(model_type, checkpoint_path)
     model = model.to(device)
@@ -68,9 +68,7 @@ def run_model(model_type, checkpoint_path):
         optimizer = optim.Adam
         loss_fn = nn.CrossEntropyLoss()
         
-        models.train_model_pca(model, trainloader, testloader, epochs, optimizer, loss_fn, device)
-        
-        models.save_model(model)
+        models.train_model_pca(model, trainloader, testloader, epochs, optimizer, loss_fn, device, count)
     
     ############ TESTING AND VALIDATION #######################
     
@@ -85,8 +83,8 @@ def run_model(model_type, checkpoint_path):
         print('//////////////////////////////// TESTING /////////////////////////////////////////////////////////////////////////////////////\n\n')
 
 def main():
-    
-    run_model(model_type, checkpoint_path)
+    for i in range(8):    
+        run_model(model_type, checkpoint_path, count=i)
     
         
 if __name__=='__main__':
