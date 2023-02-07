@@ -100,7 +100,7 @@ def train_model_pca(model, training_dataloader, testing_dataloader, epochs, opti
                 testing_running_loss += testing_loss
                 test_count += 1
         print(f'Epoch {epoch + 1} completed')
-        if epoch % 3 == 0:
+        if epoch % 1 == 0:
             for name, param in model.named_parameters():
                 print(param.view(-1))
                 first_layer_weights.append(param.view(-1).detach().cpu().numpy().flatten())
@@ -125,18 +125,18 @@ def train_model_pca(model, training_dataloader, testing_dataloader, epochs, opti
     
     # convert the first layer weight list into proper data structure for pca
     first_layer_weights = np.array(first_layer_weights)
+    print(first_layer_weights.shape)
     
     print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
     
     # Create model_data directory
     if not os.path.exists('model_data/'):
         os.mkdir('model_data/')
-        
     # Write training data to csv file
     # if not os.path.exists(csv_name):
     #     with open(csv_name, 'a') as f:
     #         writer_object = writer(f)
-    #         writer_object.writerow(['epochs', 'pca_1', 'pca_2'])
+    #         writer_object.writerow(['first_layer_weights'])
             
     #         f.close()
     
@@ -151,12 +151,13 @@ def train_model_pca(model, training_dataloader, testing_dataloader, epochs, opti
 def pca_analysis(csv_path):
     
     # Get data
-    first_layer_weights = pd.read_csv(csv_path)
+    first_layer_weights = pd.read_csv(csv_path, header=None)
+    print(first_layer_weights.shape)
     
     # Scale the weight data
     scaling = preprocessing.StandardScaler()
     
-    scaling.fit(first_layer_weights)
+    scaling.fit(first_layer_weights.values)
     scaled_weights = scaling.transform(first_layer_weights)
     
     pca = PCA(n_components=2)
@@ -166,23 +167,15 @@ def pca_analysis(csv_path):
     
     print(first_layer_pca)
     
-    pca_csv_name = 'pca_analysis.csv'
+    pca_csv_name = 'model_data/pca_analysis.csv'
     
     # Create model_data directory
     if not os.path.exists('model_data/'):
         os.mkdir('model_data/')
-        
-    # Write training data to csv file
-    if not os.path.exists(pca_csv_name):
-        with open(pca_csv_name, 'a') as f:
-            writer_object = writer(f)
-            writer_object.writerow(['epochs', 'pca_1', 'pca_2'])
-            
-            f.close()
     
     with open(pca_csv_name, 'a') as f:
         writer_object = writer(f)
-        writer_object.writerows(first_layer_weights)
+        writer_object.writerows(first_layer_pca)
     
 def test_accuracy(model, dataloader, loss_fn, device):
     total = 0
