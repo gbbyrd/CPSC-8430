@@ -84,7 +84,9 @@ def run_model(model_type, checkpoint_path, count):
 
 def main():
     for i in range(8):    
-        run_model(model_type, checkpoint_path, count=i)
+        run_model(model_type, checkpoint_path)
+        
+    models.pca_analysis('/model_data/dnn_1.csv')
     
         
 if __name__=='__main__':
