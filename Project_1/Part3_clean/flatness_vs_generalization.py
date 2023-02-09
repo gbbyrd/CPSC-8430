@@ -45,7 +45,7 @@ criterion = nn.CrossEntropyLoss()
 
 # Train the same model for 10 epochs with different batch sizes
 if args.train:
-    epochs = 1
+    epochs = 100
     model1 = models.DNN_10('interpolation_model1')
     model2 = models.DNN_10('interpolation_model2')
     model3 = models.DNN_10('interpolation_model3')
