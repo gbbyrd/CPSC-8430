@@ -83,11 +83,11 @@ if not args.train:
 interpolations of the parameters of the two models at ratios of -1 to 2
 with a .1 step size '''
 
-# # Get interpolated model
-# models.analyze_interpolations(model1, model2, trainloader_model1, testloader,
-#                               criterion, DEVICE)
+# Get interpolated model
+models.analyze_interpolations(model1, model2, trainloader_model1, testloader,
+                               criterion, DEVICE)
 
-# generate_figures.alpha_vs_accuracy()
+generate_figures.alpha_vs_accuracy()
 
 ''' Flatness vs Generalization Part 2 '''
 

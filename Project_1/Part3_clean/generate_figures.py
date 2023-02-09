@@ -37,8 +37,8 @@ def sensitivity_analysis():
     ax[1].plot(data[:,0], data[:,4], 'b', label='train') # add training accuracy
     ax[1].set_xlabel('batch_size')
     ax[1].set_ylabel('accuracy', color='blue')
-    ax_1.plot(data[:,0], data[:,1], 'r') # add sensitivity
-    ax_1.set_ylabel('sensitivity', color='red', label='sensitivity')
+    ax_1.plot(data[:,0], data[:,1], 'r', label='sensitivity') # add sensitivity
+    ax_1.set_ylabel('sensitivity', color='red')
     
     fig.savefig('figures/sensitivity_analysis.png')
 
