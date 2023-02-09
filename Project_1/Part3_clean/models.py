@@ -312,7 +312,7 @@ def save_model(model):
     
     return
     
-def train_model(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device):
+def train_model(model, training_dataloader, training_dataloader_validation, testing_dataloader_validation, epochs, optimizer, loss_fn, device):
     
     optimizer = optimizer(model.parameters())
     loss_fn = loss_fn
@@ -342,17 +342,12 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
             
             training_running_loss += loss
             train_count += 1
-            if batch % 100 == 0:
-                test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
-                testing_running_loss += testing_loss
-                test_count += 1
-            
             
         total_epochs = model.training_epochs+epoch+1
         training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
         testing_running_loss = round(testing_running_loss.detach().cpu().item(), 3)
-        train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader, loss_fn, device)
-        test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+        train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader_validation, loss_fn, device)
+        test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader_validation, loss_fn, device)
         average_train_loss = training_running_loss/(train_count)
         average_test_loss = testing_running_loss/(test_count)
         print(f'Total Epochs: {total_epochs}, Training Ex Per Epoch: {train_total_examples}')
