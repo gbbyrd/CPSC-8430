@@ -9,23 +9,24 @@ import os
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
 from csv import writer
+import autograd_lib
+from functorch import hessian
+from torch.nn.utils import _stateless
+import time
+
 
 class DNN_0(nn.Module):
     def __init__(self, device):
         super().__init__()
         # 2 hidden layers, 608 parameters
-        self.lin = nn.Linear(1, 34).to(device)
-        self.fc1 = nn.Linear(34, 14).to(device)
-        self.fc2 = nn.Linear(14, 7).to(device)
-        self.lout = nn.Linear(7, 1).to(device)
+        self.lin = nn.Linear(1, 10).to(device)
+        self.lout = nn.Linear(10, 1).to(device)
         
         self.name = 'DNN_0'
         
     def forward(self, x):
         activation_func = F.relu
         x = activation_func(self.lin(x))
-        x = activation_func(self.fc1(x))
-        x = activation_func(self.fc2(x))
         x = self.lout(x)
         
         return x
@@ -61,6 +62,80 @@ def create_model(model_type: str, checkpoint: str = None):
         model = torch.load(checkpoint)
         
     return model
+
+def train_model(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device):
+    
+    first_layer_weights = []
+    optimizer = optimizer(model.parameters())
+    loss_fn = loss_fn
+    batch_size = ...
+    training_info = []
+    
+    csv_name = 'model_data/' + model.name + '.csv'
+    
+    training_running_loss = 0.0
+    testing_running_loss = 0.0
+    batch_size = 0
+    
+    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////')
+        
+    for epoch in range(epochs):
+        train_count = 0
+        test_count = 0
+        for batch, (img, label) in enumerate(training_dataloader):
+            
+            batch_size = len(img)
+            img = img.to(device)
+            label = label.to(device)
+            pred = model(img)
+            loss = loss_fn(pred, label)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            training_running_loss += loss
+            train_count += 1
+            if batch % 100 == 0:
+                test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+                testing_running_loss += testing_loss
+                test_count += 1
+            
+        total_epochs = model.training_epochs+epoch+1
+        training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
+        testing_running_loss = round(testing_running_loss.detach().cpu().item(), 3)
+        train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader, loss_fn, device)
+        test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+        average_train_loss = training_running_loss/(train_count)
+        average_test_loss = testing_running_loss/(test_count)
+        print(f'Total Epochs: {total_epochs}, Training Ex Per Epoch: {train_total_examples}')
+        print(f'Average Training Loss: {average_train_loss}, Training Set Accuracy: {training_accuracy}')
+        print(f'Average Testing Loss: {average_test_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
+        print('-----------------------------------------------------------------------------')
+        training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy])
+        training_running_loss = 0.0
+        testing_running_loss = 0.0
+    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
+    
+    
+    # Write training data to csv file
+    if not os.path.exists(csv_name):
+        with open(csv_name, 'a') as f:
+            writer_object = writer(f)
+            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy'])
+            
+            f.close()
+    
+    with open(csv_name, 'a') as f:
+        writer_object = writer(f)
+        writer_object.writerows(training_info)
+    
+    model.training_epochs += epochs
+    
+    checkpoint_path = f'checkpoints/{model.name}_{batch_size}.pth'
+    torch.save(model, checkpoint_path)
+    
+    
     
 def train_model_pca(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device):
     
@@ -107,19 +182,6 @@ def train_model_pca(model, training_dataloader, testing_dataloader, epochs, opti
                 break
             
         total_epochs = model.training_epochs+epoch+1
-        # training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
-        # testing_running_loss = round(testing_running_loss.detach().cpu().item(), 3)
-        # train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader, loss_fn, device)
-        # test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
-        # average_train_loss = training_running_loss/(train_count)
-        # average_test_loss = testing_running_loss/(test_count)
-        # print(f'Total Epochs: {total_epochs}, Training Ex Per Epoch: {train_total_examples}')
-        # print(f'Average Training Loss: {average_train_loss}, Training Set Accuracy: {training_accuracy}')
-        # print(f'Average Testing Loss: {average_test_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
-        # print('-----------------------------------------------------------------------------')
-        # training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy])
-        # training_running_loss = 0.0
-        # testing_running_loss = 0.0
         
     # PCA analysis
     
@@ -221,16 +283,20 @@ def train_model_grad_norm_exp1(model, trainloader, testloader, epochs,
             
             # Calculate grad norm
             grad_norm = get_grad_norm(model)
+            grad_norm = grad_norm.cpu().data.numpy()
             
             training_running_loss += loss
             training_running_grad_norm += grad_norm
         
         # Caluclate average loss and grad norm for the epoch
         training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
-        training_running_grad_norm = round(training_running_grad_norm.detach().cpu().item(), 3)  
+        training_running_grad_norm = round(training_running_grad_norm, 3)  
         average_grad_norm = training_running_grad_norm / len(trainloader)
         average_loss = training_running_loss / len(trainloader)
         training_info.append([epoch, average_loss, average_grad_norm])
+        print(f'Epoch: {epoch}, Loss: {average_loss}')
+        training_running_loss = 0
+        training_running_grad_norm = 0
         
     # Write the data to a .csv file
     # Create model_data directory
@@ -256,13 +322,11 @@ def train_model_grad_norm_exp2(model, trainloader, epochs,
     
     optimizer = optimizer(model.parameters())
     
-    
-    
     '''Train on the initial loss function for 4 epochs, then switch loss
     function to gradient norm'''
     
-    for epochs in range(4):
-        
+    for epoch in range(4):
+        grad_norm = 0
         for x, y in trainloader:
             x = x.to(device)
             y = y.to(device)
@@ -270,7 +334,76 @@ def train_model_grad_norm_exp2(model, trainloader, epochs,
             pred = model(x)
             loss = criterion(pred, y)
             
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
             
+            grad_norm += get_grad_norm(model)
+            
+        average_grad_norm = grad_norm / len(trainloader)
+        
+        print(f'Epoch: {epoch}, Grad Norm: {average_grad_norm}')
+        
+    num_param = sum(p.numel() for p in model.parameters())
+    names = list(n for n, _ in model.named_parameters())
+    
+    def loss(params):
+        y_hat = _stateless.functional_call(model, {n: p for n, p in zip(names, params)}, x)
+        return ((y_hat - y)**2).mean()
+    
+    # Calculate the Hessian
+    hessian_func = hessian(loss)
+
+    start = time.time()
+
+    what = tuple(model.parameters())
+
+    H = hessian_func(tuple(model.parameters()))
+    print(type(H))
+    H = torch.cat([torch.cat([e.flatten() for e in Hpart]) for Hpart in H]) # flatten
+    print(type(H))
+    print(H.size())
+    H = H.reshape(num_param, num_param)
+    print(type(H))
+    print(H.size())
+
+    print(H)
+    H = H.detach().cpu().numpy()
+    eigenvalues = np.linalg.eig(H)
+    
+    print(eigenvalues)
+    
+    print(type(eigenvalues[0]))
+
+    print(time.time() - start)
+    
+    # # Train until grad norm is approximately zero, then calculate the hessian matrix
+    # hessian_matrix = ...
+    # while (1):
+    #     grad_norm = 0
+    #     pred = 0
+    #     for x, y in trainloader:
+    #         x = x.to(device)
+    #         y = y.to(device)
+            
+    #         pred = model(x)
+    #         loss = get_grad_norm(model)
+            
+    #         optimizer.zero_grad()
+    #         loss.backward()
+    #         optimizer.step()
+            
+    #         grad_norm += get_grad_norm(model)
+            
+    #     average_grad_norm = grad_norm / len(trainloader)
+        
+    #     if average_grad_norm < .1:
+    #         hessian_matrix = autograd_lib.backward_hessian(pred)
+    #         break
+        
+    #     print(f'Epoch: {epoch}, Grad Norm: {average_grad_norm}')
+        
+    #     return hessian_matrix
 
 def get_grad_norm(model):
     
@@ -279,7 +412,7 @@ def get_grad_norm(model):
     for p in model.parameters():
         grad = 0.0
         if p.grad is not None:
-            grad = torch.sum((p.grad.cpu().data.numpy() ** 2))
+            grad = torch.sum((p.grad ** 2))
         grad_all += grad
         
     return grad_all ** 0.5

@@ -5,6 +5,45 @@ import glob
 import numpy as np
 import os
 
+def alpha_vs_accuracy():
+    data = pd.read_csv('model_data/interpolated_model.csv').to_numpy()
+    fig,ax = plt.subplots()
+    ax.plot(data[:,0], data[:,2], 'b', linestyle='dotted', label='test') # plot testing loss
+    ax.plot(data[:,0], data[:,4], 'b', label='train') # plot training loss
+    ax.set_xlabel('alpha')
+    ax.set_ylabel('loss', color='blue')
+    ax.legend()
+    ax2 = ax.twinx()
+    ax2.plot(data[:,0], data[:,1], 'r', linestyle='dotted') # plot testing accuracy
+    ax2.plot(data[:,0], data[:,3], 'r') # plot training accuracy
+    ax2.set_ylabel('accuracy', color='red')
+    
+    fig.savefig('figures/flatness_vs_generalization1.png')
+    
+def sensitivity_analysis():
+    data = pd.read_csv('model_data/sensitivity_analysis.csv').to_numpy()
+    print(data)
+    fig,ax = plt.subplots(1, 2)
+    plt.xscale('log')
+    ax_0 = ax[0].twinx()
+    ax_1 = ax[1].twinx()
+    ax[0].plot(data[:,0], data[:,3], 'b', linestyle='dotted', label='test') # add testing loss
+    ax[0].plot(data[:,0], data[:,5], 'b', label='train') # add training loss
+    ax[0].set_xlabel('batch_size')
+    ax[0].set_ylabel('loss', color='blue')
+    ax_0.plot(data[:,0], data[:,1], 'r', label='sensitivity') # add sensitivity
+    ax_0.set_ylabel('sensitivity', color='red')
+    ax[1].plot(data[:,0], data[:,2], 'b', linestyle='dotted', label='test') # add testing accuracy
+    ax[1].plot(data[:,0], data[:,4], 'b', label='train') # add training accuracy
+    ax[1].set_xlabel('batch_size')
+    ax[1].set_ylabel('accuracy', color='blue')
+    ax_1.plot(data[:,0], data[:,1], 'r') # add sensitivity
+    ax_1.set_ylabel('sensitivity', color='red', label='sensitivity')
+    
+    fig.savefig('figures/sensitivity_analysis.png')
+
+    
+
 def random_fit():
     ''' Generates figure for the random fit experiment'''
     if not os.path.exists('figures/'):

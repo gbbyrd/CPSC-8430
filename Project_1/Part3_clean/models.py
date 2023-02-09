@@ -3,6 +3,7 @@ import torch.nn as nn
 import os
 from csv import writer
 import torch.nn.functional as F
+import numpy as np
 
 class DNN_Random_Fit(nn.Module):
     def __init__(self):
@@ -243,6 +244,21 @@ class DNN_9(nn.Module):
         
         return x
     
+class DNN_10(nn.Module):
+    def __init__(self, name) -> None:
+        super(DNN_10, self).__init__()
+        self.fc1 = nn.Linear(1*28*28, 50)
+        self.fc2 = nn.Linear(50, 10)
+        
+        self.name = name
+        self.training_epochs = 0
+        
+    def forward(self, x):
+        x = torch.flatten(x, 1)
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+    
 '''Model related functions:
 Training, testing, creating models etc.'''
 
@@ -366,6 +382,84 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
         writer_object.writerows(training_info)
     
     model.training_epochs += epochs
+    
+    checkpoint_path = f'checkpoints/{model.name}.pth'
+    torch.save(model, checkpoint_path)
+    
+def train_model_sensiti(model, training_dataloader, testing_dataloader, epochs, optimizer, loss_fn, device):
+    
+    num_parameters = count_params(model)
+    
+    optimizer = optimizer(model.parameters())
+    loss_fn = loss_fn
+    
+    training_info = []
+    
+    csv_name = 'model_data/' + model.name + '.csv'
+    
+    training_running_loss = 0.0
+    testing_running_loss = 0.0
+    
+    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////')
+        
+    for epoch in range(epochs):
+        train_count = 0
+        test_count = 0
+        for batch, (img, label) in enumerate(training_dataloader):
+            
+            img = img.to(device)
+            label = label.to(device)
+            pred = model(img)
+            loss = loss_fn(pred, label)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            training_running_loss += loss
+            train_count += 1
+            if batch % 100 == 0:
+                test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+                testing_running_loss += testing_loss
+                test_count += 1
+            
+            
+        total_epochs = model.training_epochs+epoch+1
+        training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
+        testing_running_loss = round(testing_running_loss.detach().cpu().item(), 3)
+        train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader, loss_fn, device)
+        test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader, loss_fn, device)
+        average_train_loss = training_running_loss/(train_count)
+        average_test_loss = testing_running_loss/(test_count)
+        print(f'Total Epochs: {total_epochs}, Training Ex Per Epoch: {train_total_examples}')
+        print(f'Average Training Loss: {average_train_loss}, Training Set Accuracy: {training_accuracy}')
+        print(f'Average Testing Loss: {average_test_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
+        print('-----------------------------------------------------------------------------')
+        training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy, num_parameters])
+        training_running_loss = 0.0
+        testing_running_loss = 0.0
+        
+    print('//////////////////////////////// TRAINING /////////////////////////////////////////////////////////////////////////////////////\n\n')
+    # Create model_data directory
+    if not os.path.exists('model_data/'):
+        os.mkdir('model_data/')
+    
+    # Write training data to csv file
+    if not os.path.exists(csv_name):
+        with open(csv_name, 'a') as f:
+            writer_object = writer(f)
+            writer_object.writerow(['epochs', 'training_loss', 'training_accuracy', 'testing_loss', 'testing_accuracy', 'num_parameters'])
+            
+            f.close()
+    
+    with open(csv_name, 'a') as f:
+        writer_object = writer(f)
+        writer_object.writerows(training_info)
+    
+    model.training_epochs += epochs
+    
+    checkpoint_path = f'checkpoints/{model.name}.pth'
+    torch.save(model, checkpoint_path)
                 
 def test_accuracy(model, dataloader, loss_fn, device):
     total = 0
@@ -384,3 +478,104 @@ def test_accuracy(model, dataloader, loss_fn, device):
             correct += (predictions == label).sum().item()
             
     return total, correct/total, loss
+
+def linear_interpolation_of_two_models(model1, model2, alpha):
+    ''' This function assumes both models are a one layer model with the input
+    layer named fc1 and the output named fc2 '''
+    
+    # Get weight and bias tensors
+    model1_weight1 = model1.fc1.weight
+    model1_bias1 = model1.fc1.bias
+    model1_weight2 = model1.fc2.weight
+    model1_bias2 = model1.fc2.bias
+    
+    model2_weight1 = model2.fc1.weight
+    model2_bias1 = model2.fc1.bias
+    model2_weight2 = model2.fc2.weight
+    model2_bias2 = model2.fc2.bias
+    
+    # Create new model
+    new_model = DNN_10('new_model')
+    
+    
+    # Get weights and biases for new model
+    with torch.no_grad():
+        new_model.fc1.weight[:,:] = (1 - alpha)*model1_weight1 + alpha * model2_weight1
+        new_model.fc1.bias[:] = (1 - alpha)*model1_bias1 + alpha * model2_bias1
+        new_model.fc2.weight[:,:] = (1 - alpha)*model1_weight2 + alpha * model2_weight2
+        new_model.fc2.bias[:] = (1 - alpha)*model1_bias2 + alpha * model2_bias2
+        
+    return new_model
+
+def analyze_interpolations(model1, model2, trainloader, testloader, criterion, device):
+    x = np.linspace(-1, 2, num=30)
+    csv_name = 'model_data/interpolated_model.csv'
+    testing_info = []
+    for alpha in x:
+        new_model = linear_interpolation_of_two_models(model1, model2, alpha)
+        new_model = new_model.to(device)
+        test_total, testing_accuracy, test_loss = test_accuracy(new_model, testloader, criterion, device)
+        train_total, train_accuracy, train_loss = test_accuracy(new_model, trainloader, criterion, device)
+        test_loss = round(test_loss.detach().cpu().item(), 3)
+        train_loss = round(train_loss.detach().cpu().item(), 3)
+        testing_info.append([alpha, testing_accuracy, test_loss, train_accuracy, train_loss])
+        
+    # Create model_data directory
+    if not os.path.exists('model_data/'):
+        os.mkdir('model_data/')
+    
+    # Write training data to csv file
+    if not os.path.exists(csv_name):
+        with open(csv_name, 'a') as f:
+            writer_object = writer(f)
+            writer_object.writerow(['alpha', 'test_accuracy', 'test_loss', 'train_accuracy', 'train_loss'])
+            
+            f.close()
+    
+    with open(csv_name, 'a') as f:
+        writer_object = writer(f)
+        writer_object.writerows(testing_info)
+        
+def analyze_sensitivity(model_list, batch_size_list, criterion, trainloader, testloader, device):
+    analysis_info = []
+    csv_name = 'model_data/sensitivity_analysis.csv'
+    for idx, model in enumerate(model_list):
+        model = model.to(device)
+        sensitivity = get_grad_norm(model)
+        sensitivity = sensitivity.detach().cpu().item()
+        batch_size = batch_size_list[idx]
+        testing_total, testing_accuracy, testing_loss = test_accuracy(model, testloader, criterion,
+                                                                      device)
+        training_total, training_accuracy, training_loss = test_accuracy(model, trainloader, criterion,
+                                                                         device)
+        testing_loss = testing_loss.detach().cpu().item()
+        training_loss = training_loss.detach().cpu().item()
+        analysis_info.append([batch_size, sensitivity, testing_accuracy, testing_loss, training_accuracy, training_loss])
+        
+    # Create model_data directory
+    if not os.path.exists('model_data/'):
+        os.mkdir('model_data/')
+    
+    # Write training data to csv file
+    if not os.path.exists(csv_name):
+        with open(csv_name, 'a') as f:
+            writer_object = writer(f)
+            writer_object.writerow(['batch_size', 'sensitivity', 'testing_accuracy', 'testing_loss', 'training_accuracy', 'training_loss'])
+            
+            f.close()
+    
+    with open(csv_name, 'a') as f:
+        writer_object = writer(f)
+        writer_object.writerows(analysis_info)
+        
+def get_grad_norm(model):
+    
+    grad_all = 0.0
+    
+    for p in model.parameters():
+        grad = 0.0
+        if p.grad is not None:
+            grad = torch.sum((p.grad ** 2))
+        grad_all += grad
+        
+    return grad_all ** 0.5

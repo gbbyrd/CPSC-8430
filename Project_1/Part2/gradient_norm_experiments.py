@@ -38,7 +38,7 @@ class FunctionDataset(Dataset):
     
 def main():
     # Choose function
-    chosen_function = 'crazy_sin'
+    chosen_function = 'sine'
     
     # Create dataset and dataloader
     trainset = FunctionDataset(chosen_function)
@@ -51,9 +51,9 @@ def main():
     model_exp1 = models.DNN_0(device)
     
     # Define optimizer and criterion
-    optimizer = optim.Adam()
-    criterion = nn.CrossEntropyLoss()
-    exp_1_epochs = 100
+    optimizer = optim.Adam
+    criterion = nn.MSELoss(reduction='mean')
+    exp_1_epochs = 300
     
     # Trains the model and records the loss and gradient norm for comparison
     models.train_model_grad_norm_exp1(model_exp1, trainloader, testloader, exp_1_epochs,
@@ -66,7 +66,8 @@ def main():
     # Define optimizer and criterion
     exp_2_epochs = 100
     
-    
+    hessian_matrix = models.train_model_grad_norm_exp2(model_exp2, trainloader, exp_2_epochs, 
+                                                       optimizer, criterion, device)
     
 if __name__ == '__main__':
     main()

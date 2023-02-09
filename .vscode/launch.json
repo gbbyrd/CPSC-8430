@@ -53,7 +53,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["--test", "--train", "--all_models", "--epochs", "3", "--batch_size", "512"],
+            "args": [],
             "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part3_clean"
         },
         {
