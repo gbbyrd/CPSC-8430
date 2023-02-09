@@ -23,7 +23,7 @@ def alpha_vs_accuracy():
 def sensitivity_analysis():
     data = pd.read_csv('model_data/sensitivity_analysis.csv').to_numpy()
     print(data)
-    fig,ax = plt.subplots(1, 2)
+    fig,ax = plt.subplots(1, 2, figsize=(16,6))
     plt.xscale('log')
     ax_0 = ax[0].twinx()
     ax_1 = ax[1].twinx()
@@ -33,12 +33,16 @@ def sensitivity_analysis():
     ax[0].set_ylabel('loss', color='blue')
     ax_0.plot(data[:,0], data[:,1], 'r', label='sensitivity') # add sensitivity
     ax_0.set_ylabel('sensitivity', color='red')
+    ax[0].legend()
+    ax_0.legend()
     ax[1].plot(data[:,0], data[:,2], 'b', linestyle='dotted', label='test') # add testing accuracy
     ax[1].plot(data[:,0], data[:,4], 'b', label='train') # add training accuracy
     ax[1].set_xlabel('batch_size')
     ax[1].set_ylabel('accuracy', color='blue')
     ax_1.plot(data[:,0], data[:,1], 'r', label='sensitivity') # add sensitivity
     ax_1.set_ylabel('sensitivity', color='red')
+    ax[1].legend()
+    ax_1.legend()
     
     fig.savefig('figures/sensitivity_analysis.png')
 

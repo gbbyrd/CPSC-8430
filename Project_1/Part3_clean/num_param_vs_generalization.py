@@ -16,6 +16,7 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 import os
+from csv import writer
 
 import models
 import args
@@ -61,10 +62,38 @@ def run_model(model_name, checkpoint_path=None):
     optimizer = optim.Adam
     loss_fn = nn.CrossEntropyLoss()
     
+    csv_name = 'model_data/num_params_analysis.csv'
+    
     model = models.create_model(model_name, checkpoint_path)
     model = model.to(DEVICE)
     models.train_model(model, trainloader, testloader, arguments.epochs,
                        optimizer, loss_fn, DEVICE)
+    testing_total, testing_accuracy, testing_loss = models.test_accuracy(model, testloader, 
+                                                                              loss_fn, DEVICE)
+    training_total, training_accuracy, training_loss = models.test_accuracy(model, trainloader,
+                                                                            loss_fn, DEVICE)
+    testing_loss = round(testing_loss.detach().cpu().item(), 3)
+    training_loss = round(training_loss.detach().cpu().item(), 3)
+    num_parameters = models.count_params(model)
+    
+    validation_info = [num_parameters, testing_accuracy, training_accuracy, testing_loss, training_loss]
+    
+     # Create model_data directory
+    if not os.path.exists('model_data/'):
+        os.mkdir('model_data/')
+    
+    # Write training data to csv file
+    if not os.path.exists(csv_name):
+        with open(csv_name, 'a') as f:
+            writer_object = writer(f)
+            writer_object.writerow(['num_params', 'testing_accuracy', 'training_accuracy', 'testing_loss', 'training_loss'])
+            
+            f.close()
+    
+    with open(csv_name, 'a') as f:
+        writer_object = writer(f)
+        writer_object.writerow(validation_info)
+    
     
 def main():
     for name in model_name_list:
