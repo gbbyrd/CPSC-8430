@@ -41,7 +41,7 @@ optimizer = optim.Adam
 criterion = nn.CrossEntropyLoss()
 
 # Train the same model for 10 epochs with different batch sizes
-epochs = 100
+epochs = 25
 model1 = models.DNN_10('interpolation_model1')
 model2 = models.DNN_10('interpolation_model2')
 model3 = models.DNN_10('interpolation_model3')

@@ -344,17 +344,15 @@ def train_model(model, training_dataloader, training_dataloader_validation, test
             train_count += 1
             
         total_epochs = model.training_epochs+epoch+1
-        training_running_loss = round(training_running_loss.detach().cpu().item(), 3)
-        testing_running_loss = round(testing_running_loss.detach().cpu().item(), 3)
         train_total_examples, training_accuracy, training_loss = test_accuracy(model, training_dataloader_validation, loss_fn, device)
         test_total_examples, testing_accuracy, testing_loss = test_accuracy(model, testing_dataloader_validation, loss_fn, device)
-        average_train_loss = training_running_loss/(train_count)
-        average_test_loss = testing_running_loss/(test_count)
+        training_loss = training_loss.detach().cpu().item()
+        testing_loss = testing_loss.detach().cpu().item()
         print(f'Total Epochs: {total_epochs}, Training Ex Per Epoch: {train_total_examples}')
-        print(f'Average Training Loss: {average_train_loss}, Training Set Accuracy: {training_accuracy}')
-        print(f'Average Testing Loss: {average_test_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
+        print(f'Average Training Loss: {training_loss}, Training Set Accuracy: {training_accuracy}')
+        print(f'Average Testing Loss: {testing_loss}, Testing Accuracy ({test_total_examples} images): {testing_accuracy}')
         print('-----------------------------------------------------------------------------')
-        training_info.append([total_epochs, average_train_loss, training_accuracy, average_test_loss, testing_accuracy])
+        training_info.append([total_epochs, training_loss, training_accuracy, testing_loss, testing_accuracy])
         training_running_loss = 0.0
         testing_running_loss = 0.0
         
