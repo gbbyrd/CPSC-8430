@@ -43,6 +43,14 @@ class DNN_1(nn.Module):
         self.network = nn.Sequential(
             nn.Linear(3*32*32, 300),
             nn.ReLU(),
+            nn.Linear(300, 300),
+            nn.ReLU(),
+            nn.Linear(300, 300),
+            nn.ReLU(),
+            nn.Linear(300, 50),
+            nn.ReLU(),
+            nn.Linear(50, 300),
+            nn.ReLU(),
             nn.Linear(300, 10)
         )
         
@@ -59,9 +67,15 @@ class DNN_2(nn.Module):
         self.network = nn.Sequential(
             nn.Linear(3*32*32, 512),
             nn.ReLU(),
-            nn.Linear(512, 200),
+            nn.Linear(512, 1000),
             nn.ReLU(),
-            nn.Linear(200, 10)
+            nn.Linear(1000, 500),
+            nn.ReLU(),
+            nn.Linear(500, 200),
+            nn.ReLU(),
+            nn.Linear(200, 100),
+            nn.ReLU(),
+            nn.Linear(100, 10)
         )
         
         self.training_epochs = 0
@@ -163,23 +177,14 @@ class DNN_7(nn.Module):
         activation_func = F.relu
         x = torch.flatten(x, 1)
         x = activation_func(self.fc1(x))
-        x = self.dropout(x)
         x = activation_func(self.fc2(x))
-        x = self.dropout(x)
         x = activation_func(self.fc3(x))
-        x = self.dropout(x)
         x = activation_func(self.fc4(x))
-        x = self.dropout(x)
         x = activation_func(self.fc5(x))
-        x = self.dropout(x)
         x = activation_func(self.fc6(x))
-        x = self.dropout(x)
         x = activation_func(self.fc7(x))
-        x = self.dropout(x)
         x = activation_func(self.fc8(x))
-        x = self.dropout(x)
         x = activation_func(self.fc9(x))
-        x = self.dropout(x)
         x = self.fc10(x)
         
         return x
@@ -218,8 +223,9 @@ class DNN_9(nn.Module):
         self.fc3 = nn.Linear(500, 1000)
         self.fc4 = nn.Linear(1000, 700)
         self.fc5 = nn.Linear(700, 400)
-        self.fc6 = nn.Linear(400, 50)
-        self.fc7 = nn.Linear(50, 10)
+        self.fc6 = nn.Linear(400, 500)
+        self.fc7 = nn.Linear(500, 50)
+        self.fc8 = nn.Linear(50, 10)
         self.dropout = nn.Dropout(.25)
         
         self.training_epochs = 0
@@ -229,18 +235,13 @@ class DNN_9(nn.Module):
         activation_func = F.relu
         x = torch.flatten(x, 1)
         x = activation_func(self.fc1(x))
-        x = self.dropout(x)
         x = activation_func(self.fc2(x))
-        x = self.dropout(x)
         x = activation_func(self.fc3(x))
-        x = self.dropout(x)
         x = activation_func(self.fc4(x))
-        x = self.dropout(x)
         x = activation_func(self.fc5(x))
-        x = self.dropout(x)
         x = activation_func(self.fc6(x))
-        x = self.dropout(x)
-        x = self.fc7(x)
+        x = activation_func(self.fc7(x))
+        x = self.fc8(x)
         
         return x
     

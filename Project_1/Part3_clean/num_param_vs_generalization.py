@@ -42,7 +42,9 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
                                      download=True, transform=transform)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size,
                                           shuffle=True, num_workers=2)
-testloader = torch.utils.data.DataLoader(testset, batch_size,
+trainloader_verification = torch.utils.data.DataLoader(trainset, batch_size=len(trainset),
+                                                       shuffle=True, num_workers=2)
+testloader_verification = torch.utils.data.DataLoader(testset, batch_size=len(testset),
                                          shuffle=False, num_workers=2)
 
 model_name_list = [
@@ -66,11 +68,11 @@ def run_model(model_name, checkpoint_path=None):
     
     model = models.create_model(model_name, checkpoint_path)
     model = model.to(DEVICE)
-    models.train_model(model, trainloader, testloader, arguments.epochs,
+    models.train_model(model, trainloader, testloader_verification, arguments.epochs,
                        optimizer, loss_fn, DEVICE)
-    testing_total, testing_accuracy, testing_loss = models.test_accuracy(model, testloader, 
+    testing_total, testing_accuracy, testing_loss = models.test_accuracy(model, testloader_verification, 
                                                                               loss_fn, DEVICE)
-    training_total, training_accuracy, training_loss = models.test_accuracy(model, trainloader,
+    training_total, training_accuracy, training_loss = models.test_accuracy(model, trainloader_verification,
                                                                             loss_fn, DEVICE)
     testing_loss = round(testing_loss.detach().cpu().item(), 3)
     training_loss = round(training_loss.detach().cpu().item(), 3)

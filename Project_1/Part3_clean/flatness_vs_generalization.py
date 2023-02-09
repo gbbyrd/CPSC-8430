@@ -7,11 +7,6 @@ import argparse
 import models
 import generate_figures
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--train', action='store_true', default=False, help='Train the models and save checkpoints')
-
-args = parser.parse_args()
-
 DEVICE = ('cuda' if torch.cuda.is_available() else 'cpu')
 print(DEVICE)
 
@@ -37,45 +32,38 @@ trainloader_model4 = torch.utils.data.DataLoader(trainset, batch_size=256,
                                                  shuffle=True, num_workers=2)
 trainloader_model5 = torch.utils.data.DataLoader(trainset, batch_size=512,
                                                  shuffle=True, num_workers=2)
-testloader = torch.utils.data.DataLoader(testset, batch_size=len(testset),
+trainloader_verification = torch.utils.data.DataLoader(trainset, batch_size=len(trainset),
+                                                       shuffle=False, num_workers=2)
+testloader_verification = torch.utils.data.DataLoader(testset, batch_size=len(testset),
                                          shuffle=False, num_workers=2)
 
 optimizer = optim.Adam
 criterion = nn.CrossEntropyLoss()
 
 # Train the same model for 10 epochs with different batch sizes
-if args.train:
-    epochs = 100
-    model1 = models.DNN_10('interpolation_model1')
-    model2 = models.DNN_10('interpolation_model2')
-    model3 = models.DNN_10('interpolation_model3')
-    model4 = models.DNN_10('interpolation_model4')
-    model5 = models.DNN_10('interpolation_model5')
-    
-    model1 = model1.to(DEVICE)
-    model2 = model2.to(DEVICE)
-    model3 = model3.to(DEVICE)
-    model4 = model4.to(DEVICE)
-    model5 = model5.to(DEVICE)
+epochs = 100
+model1 = models.DNN_10('interpolation_model1')
+model2 = models.DNN_10('interpolation_model2')
+model3 = models.DNN_10('interpolation_model3')
+model4 = models.DNN_10('interpolation_model4')
+model5 = models.DNN_10('interpolation_model5')
 
-    models.train_model(model1, trainloader_model1, testloader, epochs, optimizer,
-                    criterion, DEVICE)
-    models.train_model(model2, trainloader_model2, testloader, epochs, optimizer,
-                    criterion, DEVICE)
-    models.train_model(model3, trainloader_model3, testloader, epochs, optimizer,
-                    criterion, DEVICE)
-    models.train_model(model4, trainloader_model4, testloader, epochs, optimizer,
-                    criterion, DEVICE)
-    models.train_model(model5, trainloader_model5, testloader, epochs, optimizer,
-                    criterion, DEVICE)
+model1 = model1.to(DEVICE)
+model2 = model2.to(DEVICE)
+model3 = model3.to(DEVICE)
+model4 = model4.to(DEVICE)
+model5 = model5.to(DEVICE)
 
-if not args.train:
-    # Load the checkpoints
-    model1 = torch.load('checkpoints/interpolation_model1.pth')
-    model2 = torch.load('checkpoints/interpolation_model2.pth')
-    model3 = torch.load('checkpoints/interpolation_model3.pth')
-    model4 = torch.load('checkpoints/interpolation_model4.pth')
-    model5 = torch.load('checkpoints/interpolation_model5.pth')
+models.train_model(model1, trainloader_model1, testloader_verification, epochs, optimizer,
+                criterion, DEVICE)
+models.train_model(model2, trainloader_model2, testloader_verification, epochs, optimizer,
+                criterion, DEVICE)
+models.train_model(model3, trainloader_model3, testloader_verification, epochs, optimizer,
+                criterion, DEVICE)
+models.train_model(model4, trainloader_model4, testloader_verification, epochs, optimizer,
+                criterion, DEVICE)
+models.train_model(model5, trainloader_model5, testloader_verification, epochs, optimizer,
+                criterion, DEVICE)
 
 ''' Flatness vs Generalization Part 1 '''
 
@@ -84,7 +72,7 @@ interpolations of the parameters of the two models at ratios of -1 to 2
 with a .1 step size '''
 
 # Get interpolated model
-models.analyze_interpolations(model1, model2, trainloader_model1, testloader,
+models.analyze_interpolations(model1, model2, trainloader_verification, testloader_verification,
                                criterion, DEVICE)
 
 generate_figures.alpha_vs_accuracy()
@@ -110,7 +98,7 @@ batch_size_list = [
 ]
 
 models.analyze_sensitivity(model_list, batch_size_list, criterion, 
-                           trainloader_model1, testloader, DEVICE)
+                           trainloader_verification, testloader_verification, DEVICE)
 
 generate_figures.sensitivity_analysis()
 

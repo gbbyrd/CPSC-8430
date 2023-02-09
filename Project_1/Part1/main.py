@@ -12,7 +12,7 @@ This file will allow you to test the performance of multiple neural networks whe
 to approximate various non-linear functions
 '''
 
-chosen_function = 'cosine'
+chosen_function = 'exponential'
 
 def plot_results(x_train, y_train, x_eval, model_predictions, epochs_to_converge):
     fig, axis = plt.subplots(1, 2)
@@ -34,6 +34,8 @@ def plot_results(x_train, y_train, x_eval, model_predictions, epochs_to_converge
         leg_loss = axis[1].legend()
     
     plt.show()
+    
+    fig.savefig('figures/exponential.png')
     
 def test_functions(x):
         funcs = {

@@ -57,7 +57,7 @@ testset = torchvision.datasets.MNIST(root='./data', train=False,
 trainloader_twisted = torch.utils.data.DataLoader(trainset_twisted, batch_size=batch_size,
                                                   shuffle=True, num_workers=2)
 
-testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
+testloader = torch.utils.data.DataLoader(testset, batch_size=len(testset),
                                          shuffle=False, num_workers=2)
 
 def main():

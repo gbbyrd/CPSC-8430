@@ -16,7 +16,7 @@ def generate_figures():
         else:
             dnn_files.append(name)
     for csv_name in cnn_files:
-        fig, axis = plt.subplots(1, 2)
+        fig, axis = plt.subplots(1, 2, figsize=(16, 6))
         data = pd.read_csv(csv_name)
         data = np.array(data)
         epochs = data[:, 0]
@@ -37,7 +37,7 @@ def generate_figures():
         axis[0].legend()
         axis[1].legend()
         plt.savefig(os.path.join('figures/', csv_name[11:-3]))
-    fig, axis = plt.subplots(1, 2)
+    fig, axis = plt.subplots(1, 2, figsize=(16,6))
     color_array = ['blue', 'red', 'green', 'yellow', 'black', 'orange']
     for model, csv_name in enumerate(cnn_files):
         data = pd.read_csv(csv_name)
@@ -63,7 +63,7 @@ def generate_figures():
 
     # DNN Models
     for csv_name in dnn_files:
-        fig, axis = plt.subplots(1, 2)
+        fig, axis = plt.subplots(1, 2, figsize=(16,6))
         data = pd.read_csv(csv_name)
         data = np.array(data)
         epochs = data[:, 0]
@@ -84,7 +84,7 @@ def generate_figures():
         axis[0].legend()
         axis[1].legend()
         plt.savefig(os.path.join('figures/', csv_name[11:-3]))
-    fig, axis = plt.subplots(1, 2)
+    fig, axis = plt.subplots(1, 2, figsize=(16,6))
     for model, csv_name in enumerate(dnn_files): 
         data = pd.read_csv(csv_name)
         data = np.array(data)
@@ -105,6 +105,4 @@ def generate_figures():
     axis[1].set_ylabel('accuracy')
     axis[0].set_title('DNN model loss comparison')
     axis[1].set_title('DNN model accuracy comparison')
-    plt.savefig(os.path.join('figures/DNN_compare.png'))        
-    
-# generate_figures()
+    plt.savefig(os.path.join('figures/DNN_compare.png'))       

@@ -46,7 +46,24 @@ def sensitivity_analysis():
     
     fig.savefig('figures/sensitivity_analysis.png')
 
+def num_params_analysis():
+    data = pd.read_csv('model_data/num_params_analysis.csv').to_numpy()
     
+    # plt.scatter(data[:,0], data[:,1], c='red', label='testing')
+    # plt.scatter(data[:,0], data[:,2], c='blue', label='training')
+    
+    fig,ax = plt.subplots(1,2)
+    
+    ax[0].scatter(data[:,0], data[:,1], c='red', label='testing') # testing accuracy
+    ax[0].scatter(data[:,0], data[:,2], c='blue', label='training') # training accuracy
+    ax[0].legend()
+    ax[1].scatter(data[:,0], data[:,3], c='red', label='testing') # testing loss
+    ax[1].scatter(data[:,0], data[:,4], c='blue', label='training') # training loss
+    ax[1].legend()
+    
+    plt.show()
+    
+    plt.savefig('figures/num_params_analysis.png')
 
 def random_fit():
     ''' Generates figure for the random fit experiment'''
@@ -58,7 +75,7 @@ def random_fit():
     for name in csv_files:
         if 'random' in name:
             csv_name = name
-    fig, axis = plt.subplots(1, 2)
+    fig, axis = plt.subplots(1, 2, figsize=(16,6))
     data = pd.read_csv(csv_name)
     data = np.array(data)
     epochs = data[:, 0]
@@ -183,3 +200,6 @@ def generate_figures():
     axis[0].set_title('DNN model loss comparison')
     axis[1].set_title('DNN model accuracy comparison')
     plt.savefig(os.path.join('figures/DNN_compare.png'))
+    
+if __name__ == '__main__':
+    pass

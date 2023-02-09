@@ -1,0 +1,62 @@
+Below are the specifications for each trained network.
+
+Model 1
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Linear-1             [-1, 1, 1, 34]              68
+            Linear-2             [-1, 1, 1, 14]             490
+            Linear-3              [-1, 1, 1, 7]             105
+            Linear-4              [-1, 1, 1, 1]               8
+================================================================
+Total params: 671
+Trainable params: 671
+Non-trainable params: 0
+----------------------------------------------------------------
+
+Model 2
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Linear-1             [-1, 1, 1, 10]              20
+            Linear-2             [-1, 1, 1, 10]             110
+            Linear-3             [-1, 1, 1, 10]             110
+            Linear-4             [-1, 1, 1, 10]             110
+            Linear-5             [-1, 1, 1, 27]             297
+            Linear-6              [-1, 1, 1, 1]              28
+================================================================
+Total params: 675
+Trainable params: 675
+Non-trainable params: 0
+----------------------------------------------------------------
+
+Model 3
+----------------------------------------------------------------
+        Layer (type)               Output Shape         Param #
+================================================================
+            Linear-1             [-1, 1, 1, 30]              60
+            Linear-2             [-1, 1, 1, 17]             527
+            Linear-3              [-1, 1, 1, 8]             144
+            Linear-4              [-1, 1, 1, 1]               9
+================================================================
+Total params: 740
+Trainable params: 740
+Non-trainable params: 0
+----------------------------------------------------------------
+
+In Figure 1 (left) you can see that each of the 3 models accurately fits the cosine function
+within the domain of the training data. I plotte the output of the models outside of the 
+training data domain to show the limitations of the prediction of these models and show that
+the constraints put in place by the training data is important. In Figure 1 (right) you can see that
+Model 1 and Model 3 have similar performance. They both reach the predefined convergence at the 
+same number of epochs and follow a similar learning curve. This makes sense as their parameters and
+number of layers are approximately the same. Model 2 performs significantly better than models 1 and 3 
+and reaches convergence in less than half the amount of epochs. Model 2 has two extra layers when compared
+to models 1 and 3 which likely provides the ability to generalize quickly. Looking at the learning curves,
+it can be seen that models with higher numbers of hidden layers are more difficult to train at the start,
+but they tend to plateau at lower loss values due to their more robust structures allowing them to eventually
+overtake the plateauing functions with less hidden layers. This phenomenon can be clearly seen in Figure 2 (right).
+These functions highlight the models' abilities to learn the exponential function. This function was 
+much more difficult for the models to learn, and you can see the efficiency in the deeper network here as the
+loss value for model 2 plummets while models 1 and 3 take much longer to get to a lower loss value.
+
