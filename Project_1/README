@@ -48,7 +48,7 @@ To generate figures from the two gradient norm experiments, run the following co
 
 python3 gradient_norm_experients.py
 
-*** NEED TO ADD THE REST ***
+-----------------------------------------------------------------------------------------------------------------------
 
 *** Part3_clean: ***
 
