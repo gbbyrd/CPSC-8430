@@ -324,10 +324,13 @@ def train_model_grad_norm_exp2(model, trainloader, epochs,
     
     '''Train on the initial loss function for 4 epochs, then switch loss
     function to gradient norm'''
-    
-    for epoch in range(4):
+    count = 0
+    epoch_count = 0
+    batch_size = ...
+    for epoch in range(100):
         grad_norm = 0
         for x, y in trainloader:
+            batch_size = len(x)
             x = x.to(device)
             y = y.to(device)
             
@@ -340,16 +343,121 @@ def train_model_grad_norm_exp2(model, trainloader, epochs,
             
             grad_norm += get_grad_norm(model)
             
+        epoch_count += 1
+            
         average_grad_norm = grad_norm / len(trainloader)
         
-        print(f'Epoch: {epoch}, Grad Norm: {average_grad_norm}')
+        print(f'Epoch: {epoch_count}, Grad Norm: {average_grad_norm}')
         
-    num_param = sum(p.numel() for p in model.parameters())
-    names = list(n for n, _ in model.named_parameters())
+        # if average_grad_norm < .1:
+        
+            # num_param = sum(p.numel() for p in model.parameters())
+            # names = list(n for n, _ in model.named_parameters())
+            
+            # # Calculate the Hessian
+            # hessian_func = hessian(loss)
+
+            # start = time.time()
+
+            # what = tuple(model.parameters())
+
+            # H = hessian_func(tuple(model.parameters()))
+            # # print(type(H))
+            # H = torch.cat([torch.cat([e.flatten() for e in Hpart]) for Hpart in H]) # flatten
+            # # print(type(H))
+            # # print(H.size())
+            # H = H.reshape(num_param, num_param)
+            # # print(type(H))
+            # # print(H.size())
+
+            # # print(H)
+            # H = H.detach().cpu().numpy()
+            # eigenvalues = np.linalg.eig(H)
+            
+            # print(type(eigenvalues[0]))
+            # print(eigenvalues)
+            
+            # print(eigenvalues)
+            
+            # print(type(eigenvalues[0]))
+
+            # print(time.time() - start)
+    
+    # Train until grad norm is approximately zero, then calculate the hessian matrix
+    hessian_matrix = ...
+    while (1):
+        grad_norm = 0
+        pred = 0
+        for x, y in trainloader:
+            x = x.to(device)
+            y = y.to(device)
+            
+            pred = model(x)
+            loss = get_grad_norm(model)
+            
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            grad_norm = get_grad_norm(model)
+            if grad_norm < .01:
+                break
+        if grad_norm < .01:
+            break
+        
+    # Now the grad norm is zero, train 40 times, calculating
+    # the hessian matrix with each epoch, then the minimum_ratio
+    csv_name = 'model_data/min_ratio_vs_loss.csv'
+    for epoch in range(40):
+        running_loss = 0
+        for x, y in trainloader:
+            x = x.to(device)
+            y = y.to(device)
+            
+            pred = model(x)
+            loss = criterion(pred, y)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            
+            running_loss += loss
+            
+        average_loss = running_loss / len(trainloader)
+        average_loss = round(average_loss.detach().cpu().item(), 3)
+        print(average_loss)
+        minimum_ratio = calculate_minimum_ratio(model, device) 
+        
+        # Write the data to a .csv file
+        # Create model_data directory
+        if not os.path.exists('model_data/'):
+            os.mkdir('model_data/')
+        
+        # Write training data to csv file
+        if not os.path.exists(csv_name):
+            with open(csv_name, 'a') as f:
+                writer_object = writer(f)
+                writer_object.writerow(['minimum_ratio', 'average_loss'])
+                
+                f.close()
+        
+        with open(csv_name, 'a') as f:
+            writer_object = writer(f)
+            writer_object.writerow([minimum_ratio, average_loss])
+    
+def calculate_minimum_ratio(model, device):
+    # Define loss function
+    x = np.linspace(-5,5,num=200).reshape(-1,1)
+    x = torch.from_numpy(x).float()
+    y = np.sin(x)
+    x = x.to(device)
+    y = y.to(device)
     
     def loss(params):
         y_hat = _stateless.functional_call(model, {n: p for n, p in zip(names, params)}, x)
         return ((y_hat - y)**2).mean()
+    
+    num_param = sum(p.numel() for p in model.parameters())
+    names = list(n for n, _ in model.named_parameters())
     
     # Calculate the Hessian
     hessian_func = hessian(loss)
@@ -359,51 +467,33 @@ def train_model_grad_norm_exp2(model, trainloader, epochs,
     what = tuple(model.parameters())
 
     H = hessian_func(tuple(model.parameters()))
-    print(type(H))
+    # print(type(H))
     H = torch.cat([torch.cat([e.flatten() for e in Hpart]) for Hpart in H]) # flatten
-    print(type(H))
-    print(H.size())
+    # print(type(H))
+    # print(H.size())
     H = H.reshape(num_param, num_param)
-    print(type(H))
-    print(H.size())
+    # print(type(H))
+    # print(H.size())
 
-    print(H)
+    # print(H)
     H = H.detach().cpu().numpy()
     eigenvalues = np.linalg.eig(H)
     
-    print(eigenvalues)
-    
-    print(type(eigenvalues[0]))
-
-    print(time.time() - start)
-    
-    # # Train until grad norm is approximately zero, then calculate the hessian matrix
-    # hessian_matrix = ...
-    # while (1):
-    #     grad_norm = 0
-    #     pred = 0
-    #     for x, y in trainloader:
-    #         x = x.to(device)
-    #         y = y.to(device)
+    positive_count = 0
+    total_count = 0
+    for complex_num in eigenvalues[0]:
+        if complex_num > 0:
+            positive_count += 1
+        total_count += 1
             
-    #         pred = model(x)
-    #         loss = get_grad_norm(model)
+    for array_1 in eigenvalues[1]:
+        for complex_num in array_1:
+            if complex_num > 0:
+                positive_count += 1
+            total_count += 1
             
-    #         optimizer.zero_grad()
-    #         loss.backward()
-    #         optimizer.step()
             
-    #         grad_norm += get_grad_norm(model)
-            
-    #     average_grad_norm = grad_norm / len(trainloader)
-        
-    #     if average_grad_norm < .1:
-    #         hessian_matrix = autograd_lib.backward_hessian(pred)
-    #         break
-        
-    #     print(f'Epoch: {epoch}, Grad Norm: {average_grad_norm}')
-        
-    #     return hessian_matrix
+    return positive_count / total_count
 
 def get_grad_norm(model):
     
@@ -415,6 +505,6 @@ def get_grad_norm(model):
             grad = torch.sum((p.grad ** 2))
         grad_all += grad
         
-    return grad_all ** 0.5
+    return torch.tensor(grad_all ** 0.5, requires_grad=True)
             
             

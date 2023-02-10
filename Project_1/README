@@ -9,7 +9,8 @@ It will be split into different parts, each corresponding to their own folder.
 
 *** YOU CAN DELETE THE FILES INSIDE INFO FOLDER DIRECTORIES (figures, model_data, checkpoints, etc.) BUT ***
 *** DO NOT DELETE THE FOLDERS THEMSELVES ***
-Part1:
+
+*** Part1: ***
 
 Input your chosen function in the chosen_function variable at line 15 of main.py. A list of the functions can be found
 at line 40 of main.py.
@@ -22,7 +23,7 @@ The figures will be placed in the Part1/figures directory
 
 -----------------------------------------------------------------------------------------------------------------------
 
-Part1_2:
+*** Part1_2: ***
 
 The main.py file in this folder uses arguments to allow for user customization.
 
@@ -35,7 +36,7 @@ python3 main.py --train --test --epochs 50
 
 -----------------------------------------------------------------------------------------------------------------------
 
-Part2:
+*** Part2: ***
 
 To generate figures to view the optimization process, run the following command:
 
@@ -43,9 +44,13 @@ python3 visualize_optimization_process.py --train --test --epochs 51 --model_typ
 
 This will generate a pca_analysis.png figure
 
+To generate figures from the two gradient norm experiments, run the following command:
+
+python3 gradient_norm_experients.py
+
 *** NEED TO ADD THE REST ***
 
-Part3_clean: 
+*** Part3_clean: ***
 
 To generate figures to view the analysis of a model's ability to fit random labels,
 run the following command:

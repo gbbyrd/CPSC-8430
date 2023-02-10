@@ -5,6 +5,8 @@ from torch.utils.data import Dataset, DataLoader
 import models
 from torch import optim
 
+import generate_figures
+
 device = ('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
     
@@ -59,6 +61,8 @@ def main():
     models.train_model_grad_norm_exp1(model_exp1, trainloader, testloader, exp_1_epochs,
                        optimizer, criterion, device)
     
+    generate_figures.plot_grad_vs_loss()
+    
     ''' Experiment 2 '''
     # Create model 
     model_exp2 = models.DNN_0(device)
@@ -68,6 +72,8 @@ def main():
     
     hessian_matrix = models.train_model_grad_norm_exp2(model_exp2, trainloader, exp_2_epochs, 
                                                        optimizer, criterion, device)
+    
+    generate_figures.plot_min_figures()
     
 if __name__ == '__main__':
     main()

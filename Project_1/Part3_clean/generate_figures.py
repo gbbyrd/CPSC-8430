@@ -23,7 +23,7 @@ def alpha_vs_accuracy():
 def sensitivity_analysis():
     data = pd.read_csv('model_data/sensitivity_analysis.csv').to_numpy()
     print(data)
-    fig,ax = plt.subplots(1, 2, figsize=(16,6))
+    fig,ax = plt.subplots(1, 2, figsize=(18,6))
     plt.xscale('log')
     ax_0 = ax[0].twinx()
     ax_1 = ax[1].twinx()
@@ -57,13 +57,17 @@ def num_params_analysis():
     ax[0].scatter(data[:,0], data[:,1], c='red', label='testing') # testing accuracy
     ax[0].scatter(data[:,0], data[:,2], c='blue', label='training') # training accuracy
     ax[0].legend()
+    ax[0].set_xlabel('Number of Parameters')
+    ax[0].set_ylabel('Accuracy')
     ax[1].scatter(data[:,0], data[:,3], c='red', label='testing') # testing loss
     ax[1].scatter(data[:,0], data[:,4], c='blue', label='training') # training loss
     ax[1].legend()
+    ax[1].set_xlabel('Number of Parameters')
+    ax[1].set_ylabel('Loss')
     
     plt.show()
     
-    plt.savefig('figures/num_params_analysis.png')
+    fig.savefig('figures/num_params_analysis.png')
 
 def random_fit():
     ''' Generates figure for the random fit experiment'''
@@ -199,7 +203,8 @@ def generate_figures():
     axis[1].set_ylabel('accuracy')
     axis[0].set_title('DNN model loss comparison')
     axis[1].set_title('DNN model accuracy comparison')
-    plt.savefig(os.path.join('figures/DNN_compare.png'))
+    fig.savefig(os.path.join('figures/DNN_compare.png'))
     
 if __name__ == '__main__':
+    # sensitivity_analysis()
     pass

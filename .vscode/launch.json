@@ -66,6 +66,16 @@
             "args": ["--epochs", "7"],
             "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part2"
         },
+        {
+            "name": "Part 1_2",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [],
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part1_2"
+        },
 
 
 

@@ -20,6 +20,7 @@ from csv import writer
 
 import models
 import args
+import generate_figures
 
 arguments = args.parser.parse_args()
 
@@ -103,5 +104,6 @@ def main():
     
 if __name__ == '__main__':
     main()
+    generate_figures.num_params_analysis()
 
 

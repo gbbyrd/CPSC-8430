@@ -19,6 +19,7 @@ import generate_figures
 import args
 import os
 import glob
+from torchsummary import summary
 
 arguments = args.parser.parse_args()
 
@@ -106,8 +107,17 @@ def main():
 
     generate_figures.generate_figures()
     
+def get_model_summary():
+    
+    for model_type in model_list:
+        model = models.create_model(model_type, checkpoint_path)
+        model = model.to(device)
+        
+        summary(model, (3, 32, 32))
+    
         
 if __name__=='__main__':
     main()
+    # get_model_summary()
     
 
