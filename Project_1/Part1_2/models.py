@@ -304,6 +304,7 @@ def train_model(model, training_dataloader, testing_dataloader, epochs, optimize
             
             batch_size = len(img)
             img = img.to(device)
+            print(img.size())
             label = label.to(device)
             pred = model(img)
             loss = loss_fn(pred, label)

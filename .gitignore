@@ -7,4 +7,7 @@ Project_1/Part2/checkpoints/
 Project_1/Part2/model_data/dnn_1.csv
 Project_1/Part2/figures/
 Project_1/Part3_clean/data/
-data/
+hw2/hw2_1/data/
+hw2/hw2_1/raw_dataset/
+hw2/hw2_1/data.zip
+hw2/seq2seq_tutorial/data/

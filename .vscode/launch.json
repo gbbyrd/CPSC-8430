@@ -54,7 +54,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part3_clean"
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/Project_1/Part3_clean"
         },
         {
             "name": "Part 2",
@@ -73,8 +73,28 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
+            "args": ["--model_type", "cnn_0", "--train"],
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/Project_1/Part1_2"
+        },
+        {
+            "name": "Seq2seq Tutorial",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
             "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part1_2"
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2/seq2seq_tutorial"
+        },
+        {
+            "name": "hw2_1",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [],
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2/hw2_1"
         },
 
 
