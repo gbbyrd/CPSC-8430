@@ -21,8 +21,8 @@ class HW2_Dataset(Dataset):
             self.feat_folder = self.test_feat_folder
         
         # Declare the beginning of sentence and end of sentence tags
-        self.bos = '0'
-        self.eos = '1'
+        self.bos = 0
+        self.eos = 1
         
         # Load the caption and id dictionary from .json file for the training
         # and testing datasets
@@ -55,14 +55,14 @@ class HW2_Dataset(Dataset):
         
         # There are multiple correct captions per video, choose a random one
         rand_int = np.random.randint(0, len(captions))
-        caption = captions[rand_int]
+        # caption = captions[rand_int]
+        caption = captions[0]
         feature_name = self.transformed_label_dict[index]["id"] + '.npy'
         feature_path = os.path.join(self.feat_folder, feature_name)
         
         # Load the feature into a numpy array
         feat = np.load(feature_path)
-        
-        # Transform the feature and caption into tensors
+            
         caption = torch.tensor(caption)
         feat = torch.tensor(feat)
         
@@ -127,6 +127,7 @@ class HW2_Dataset(Dataset):
             word = word.replace(".", "")
             word = word.lower()
             transformed_caption.append(self.word_to_idx[word])
+        transformed_caption.append(self.eos)
         
         return transformed_caption
     
