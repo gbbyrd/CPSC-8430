@@ -7,6 +7,7 @@ import random
 
 # Global variables
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(device)
 SOS_token = 0
 EOS_token = 1
 MAX_LENGTH = 25
@@ -169,7 +170,7 @@ def train_iters(encoder, decoder, n_epochs, print_every=10, learning_rate=0.01):
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
     criterion = nn.NLLLoss()
     
-    for epoch in n_epochs:
+    for epoch in range(n_epochs):
         
         for idx in range(1, len(trainset) + 1):
             feats, caption = trainset[idx-1]
