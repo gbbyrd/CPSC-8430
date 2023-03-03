@@ -128,6 +128,8 @@ class EncoderRNN(nn.Module):
     def forward(self, input, hidden):
         embedded = self.embedding(input).view(1, 1, -1)
         output = embedded
+        # print(output.size())
+        # print(hidden.size())
         output, hidden = self.gru(output, hidden)
         
         return output, hidden
@@ -149,6 +151,7 @@ class DecoderRNN(nn.Module):
         output = self.embedding(input).view(1, 1, -1)
         output = F.relu(output)
         output, hidden = self.gru(output, hidden)
+        print(output.size())
         output = self.softmax(self.out(output[0]))
         
         return output, hidden
@@ -173,10 +176,12 @@ def tensorsFromPair(pair):
     
     return (input_tensor, target_tensor)
 
-teacher_forcing_ratio = .5
+teacher_forcing_ratio = 0
     
 def train(input, target, encoder, decoder, encoder_optimizer, 
           decoder_optimizer, criterion, max_length=MAX_LENGTH):
+    
+    print(target.size())
     
     encoder_optimizer.zero_grad()
     decoder_optimizer.zero_grad()
@@ -202,6 +207,8 @@ def train(input, target, encoder, decoder, encoder_optimizer,
     if use_teacher_forcing:
         for di in range(target_length):
             decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
+            print(decoder_output.size())
+            print(target[di].size())
             loss += criterion(decoder_output, target[di])
             decoder_input = target[di]
             
@@ -211,7 +218,8 @@ def train(input, target, encoder, decoder, encoder_optimizer,
             topv, topi = decoder_output.topk(1)
             decoder_input = topi.squeeze().detach()
             
-            
+            print(decoder_output.size())
+            print(target[di].size())
             loss += criterion(decoder_output, target[di])
             if decoder_input.item() == EOS_token:
                 break

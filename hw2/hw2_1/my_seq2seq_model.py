@@ -39,10 +39,10 @@ class Seq2Seq(nn.Module):
         padding_word = torch.zeros([1, self.dim_word])
         state1 = None
         state2 = None
-        
+        print(vid_feats.dtype)
         # First pass through top lstm
         output1, state1 = self.rnn1(vid_feats, state1)
-        
+        print(state1[0].size(), state1[1].size())
         # Concatenate the output of the first lstm with the padded word of dimension=dim_word
         input2 = torch.cat((output1, padding_word), dim=1)
         
@@ -54,6 +54,9 @@ class Seq2Seq(nn.Module):
             # Send both lstm models to a contiguous chunk of memory for memory optimization
             self.rnn1.flatten_parameters()
             self.rnn2.flatten_parameters()
+            print(padding_vid.size())
+            print(state1[0].size())
+            print(state1[1].size())
             output1, state1 = self.rnn1(padding_vid, state1)
             embedded_word = self.embedding(output2).view(1, -1)
             input2 = torch.cat((output1, embedded_word), dim=1)
@@ -63,6 +66,7 @@ class Seq2Seq(nn.Module):
             prob_sentence.append(logits)
             topv, output2 = torch.topk(output2, 1)
             # print(output2)
+        # prob_sentence = torch.cat(prob_sentence, 1)
         return prob_sentence
     
 def one_hot(x, vocab_size):
@@ -81,14 +85,14 @@ if __name__=='__main__':
     vocab_size = trainset.dict_size
     
     # Instantiate model
-    model = Seq2Seq(vocab_size, max_len=20, dim_hidden=512, dim_word=512, n_layers=5)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters())
+    model = Seq2Seq(vocab_size, max_len=20, dim_hidden=512, dim_word=512)
+    criterion = nn.NLLLoss()
+    optimizer = optim.SGD(model.parameters(), lr=.01)
     
     epochs = 200
     for epoch in range(epochs):
-        loss = 0
-        for i in range(3):
+        for i in range(2):
+            loss = 0
             feat, caption = trainset[i]
             feat = feat.squeeze()
             feat = feat[0].view(1, -1)
@@ -98,14 +102,16 @@ if __name__=='__main__':
             prob_sentence = model(feat)
             for idx in range(len(prob_sentence)):
                 one_hot_word = one_hot(caption[idx], vocab_size)
-                loss += criterion(prob_sentence[idx], one_hot_word)
+                check = caption[idx].unsqueeze(0)
+                # print(check.size())
+                loss += criterion(prob_sentence[idx], check)
                 
                 if caption[idx].item() == 1:
                     break
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
-        print(loss/3)
+            loss.backward()
+            optimizer.step()
+            optimizer.zero_grad()
+            print(loss/3)
             
     def caption_to_words(caption, trainset):
         sentence = []
@@ -114,7 +120,7 @@ if __name__=='__main__':
             sentence.append(word)
             
         return sentence
-    for i in range(5, 8):
+    for i in range(2):
         feat, caption = trainset[i]
         feat = feat.squeeze()
         feat = feat[0].view(1, -1)

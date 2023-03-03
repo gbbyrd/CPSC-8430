@@ -63,7 +63,7 @@ class HW2_Dataset(Dataset):
         # Load the feature into a numpy array
         feat = np.load(feature_path)
             
-        caption = torch.tensor(caption)
+        caption = torch.tensor(caption).view(-1, 1)
         feat = torch.tensor(feat)
         
         '''
