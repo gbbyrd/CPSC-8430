@@ -165,6 +165,7 @@ def train(input, target, encoder, decoder, encoder_optimizer, decoder_optimizer,
 def train_iters(encoder, decoder, n_epochs, print_every=10, learning_rate=0.01):
     
     print_loss_total = 0
+    count = 0
     
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
@@ -179,16 +180,22 @@ def train_iters(encoder, decoder, n_epochs, print_every=10, learning_rate=0.01):
                         criterion)
             
             print_loss_total += loss
+            count += 1
             
-            if epoch % print_every == 0:
-                print_loss_avg = print_loss_total / print_every
-                print_loss_total = 0
-                print(f'Epoch: {epoch} ------------- Average loss: {print_loss_avg}')
+        if epoch % print_every == 0:
+            print_loss_avg = print_loss_total / count
+            count = 0
+            print_loss_total = 0
+            print(f'Epoch: {epoch} ------------- Average loss: {print_loss_avg}')
+            
+        if epoch % 50 == 0:
+            torch.save(encoder.state_dict(), f'checkpoints/encoder_{epoch}.pth')
+            torch.save(decoder.state_dict(), f'checkpoints/decoder_{epoch}.pth')
             
 encoder = EncoderRNN(trainset.dict_size, MAX_LENGTH, dim_hidden=512, dim_word=512)
 encoder = encoder.to(device)
 decoder = DecoderRNN(trainset.dict_size, MAX_LENGTH, dim_hidden=512, dim_word=512)
 decoder = decoder.to(device)
 
-train_iters(encoder, decoder, 75000, print_every=5000)
+train_iters(encoder, decoder, 500, print_every=5000)
         
