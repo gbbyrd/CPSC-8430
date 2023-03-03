@@ -173,7 +173,7 @@ def train_iters(encoder, decoder, n_epochs, print_every=10, learning_rate=0.01):
     print(f'Total samples in training set: {len(trainset)}')
     for epoch in range(n_epochs):
         
-        for idx in range(1, len(trainset) + 1):
+        for idx in range(1, 10):
             feats, caption = trainset[idx-1]
             
             loss = train(feats, caption, encoder, decoder, encoder_optimizer, decoder_optimizer,
@@ -194,10 +194,23 @@ def train_iters(encoder, decoder, n_epochs, print_every=10, learning_rate=0.01):
             torch.save(encoder.state_dict(), f'checkpoints/encoder_{epoch}.pth')
             torch.save(decoder.state_dict(), f'checkpoints/decoder_{epoch}.pth')
             
-encoder = EncoderRNN(trainset.dict_size, MAX_LENGTH, dim_hidden=256, dim_word=256)
-encoder = encoder.to(device)
-decoder = DecoderRNN(trainset.dict_size, MAX_LENGTH, dim_hidden=256, dim_word=256)
-decoder = decoder.to(device)
 
-train_iters(encoder, decoder, 500, print_every=5000)
+if __name__ == '__main__':
+    load_from_checkpoint = True  
+    encoder_checkpoint = 'checkpoints/encoder_10.pth'
+    decoder_checkpoint = 'checkpoints/decoder_10.pth'
+              
+    encoder = EncoderRNN(trainset.dict_size, MAX_LENGTH, dim_hidden=256, dim_word=256)
+    decoder = DecoderRNN(trainset.dict_size, MAX_LENGTH, dim_hidden=256, dim_word=256)
+    
+    encoder_state_dict = torch.load(encoder_checkpoint)
+    decoder_state_dict = torch.load(decoder_checkpoint)
+    
+    encoder.load_state_dict(encoder_state_dict)
+    decoder.load_state_dict(decoder_state_dict)
+    
+    encoder = encoder.to(device)
+    decoder = decoder.to(device)
+
+    train_iters(encoder, decoder, 500, print_every=5000)
         

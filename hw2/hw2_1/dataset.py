@@ -5,6 +5,16 @@ import os
 import json
 
 class HW2_Dataset(Dataset):
+    """This dataset is used to load up feature and caption training and testing
+    data from the MLDS data set. Here is the link to download the data:
+    https://drive.google.com/file/d/1RevHMfXZ1zYjUm4fPU1CfFKAjyMJjdgJ/view
+    No preprocessing is necessary as the data is already in a processed format.
+    Extract the data and ensure that it is inside a MLDS_hw2_1_data folder inside
+    the same directory as the dataset.
+
+    Args:
+        Dataset (PyTorch Class): Build in PyTorch dataset class.
+    """
     def __init__(self, train=True):
         super(HW2_Dataset, self).__init__()
         # Specify the folders for training or testing datasets
