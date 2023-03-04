@@ -11,3 +11,5 @@ hw2/hw2_1/data/
 hw2/hw2_1/MLDS_hw2_1_data/
 hw2/hw2_1/data.zip
 hw2/seq2seq_tutorial/data/
+hw2/hw2_1/checkpoints/
+hw2/hw2_clean/MLDS_hw2_1_data/

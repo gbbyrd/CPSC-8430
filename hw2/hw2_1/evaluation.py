@@ -85,11 +85,11 @@ if __name__ == '__main__':
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(DEVICE)
     
-    testset = HW2_Dataset(train=False)
+    testset = HW2_Dataset(train=True)
     MAX_LENGTH = 25
     
-    encoder_checkpoint = 'checkpoints/encoder_40.pth'
-    decoder_checkpoint = 'checkpoints/decoder_40.pth'
+    encoder_checkpoint = 'checkpoints/encoder_130.pth'
+    decoder_checkpoint = 'checkpoints/decoder_130.pth'
     
     encoder_state_dict = torch.load(encoder_checkpoint)
     decoder_state_dict = torch.load(decoder_checkpoint)

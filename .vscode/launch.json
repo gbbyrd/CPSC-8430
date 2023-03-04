@@ -97,6 +97,16 @@
             "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2/hw2_1"
         },
         {
+            "name": "hw2_clean",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [],
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2/hw2_clean"
+        },
+        {
             "name": "hw2_jupyter",
             "type": "python",
             "request": "launch",
