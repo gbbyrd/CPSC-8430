@@ -1,0 +1,17 @@
+### HW2 - Seq2Seq for caption generation
+
+To run the test script that uses the pre-trained model checkpoint, run the following:
+    $ hw2_seq2seq.sh data_folder_name output/output.txt
+
+This will output the BLEU@1 evaluation of the trained model checkpoint.
+It should be ~.68
+
+### Training
+To train the model, you must ensure that the model data is in a folder called 'MLDS_hw2_1_data'. 
+I have hardcoded this path for training.
+
+Run the following to train:
+    $ python3 train.py
+
+
+

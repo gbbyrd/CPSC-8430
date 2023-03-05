@@ -16,13 +16,19 @@ class HW2_Dataset(Dataset):
     Args:
         Dataset (PyTorch Class): Build in PyTorch dataset class.
     """
-    def __init__(self, train=True, load_into_ram=True):
+    def __init__(self, data_folder=None, train=True, load_into_ram=True):
         super(HW2_Dataset, self).__init__()
         # Specify the folders for training or testing datasets
-        self.train_label_path = 'MLDS_hw2_1_data/training_label.json'
-        self.train_feat_folder = 'MLDS_hw2_1_data/training_data/feat'
-        self.test_label_path = 'MLDS_hw2_1_data/testing_label.json'
-        self.test_feat_folder = 'MLDS_hw2_1_data/testing_data/feat'
+        if not data_folder:
+            self.train_label_path = 'MLDS_hw2_1_data/training_label.json'
+            self.train_feat_folder = 'MLDS_hw2_1_data/training_data/feat'
+            self.test_label_path = 'MLDS_hw2_1_data/testing_label.json'
+            self.test_feat_folder = 'MLDS_hw2_1_data/testing_data/feat'
+        else:
+            self.train_label_path = data_folder+'/training_label.json'
+            self.train_feat_folder = data_folder+'/training_data/feat'
+            self.test_label_path = data_folder+'/testing_label.json'
+            self.test_feat_folder = data_folder+'/testing_data/feat'
         
         # Specify the global feat folder for the __getitem__ function
         self.feat_folder = ...

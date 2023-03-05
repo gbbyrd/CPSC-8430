@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -12,6 +14,23 @@ import sys
 import os
 import time
 from dataset import HW2_Dataset
+
+class test_data(Dataset):
+    def __init__(self, test_data_path):
+        self.avi = []
+        files = os.listdir(test_data_path)
+        for file in files:
+            key = file.split('.npy')[0]
+            value = np.load(os.path.join(test_data_path, file))
+            self.avi.append([key, value])
+
+    def __len__(self):
+        return len(self.avi)
+    
+    def __getitem__(self, idx):
+        assert (idx < self.__len__())
+
+        return self.avi[idx]
 
 class LossFun(nn.Module):
     def __init__(self):
@@ -79,7 +98,7 @@ class training(object):
 
         if self.__CUDA__:
             self.model = model.cuda()
-            print('GPU is available')
+            print('cuda')
         else:
             self.model = model.cpu()
 
@@ -210,7 +229,7 @@ def main():
         train.eval()
 
     end = time.time()
-    torch.save(seq2seq, "{}/{}.h5".format(ModelSaveLoc, 'model0'))
+    torch.save(seq2seq, "{}/{}.h5".format(ModelSaveLoc, 'seq2seq.pth'))
     print("Training finished {}  elapsed time: {: .3f} seconds. \n".format('test', end-start))
         
 if __name__ == '__main__':
