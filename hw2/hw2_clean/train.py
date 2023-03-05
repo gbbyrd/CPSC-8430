@@ -106,7 +106,7 @@ class training(object):
             # start training process
             self.optimizer.zero_grad()
             seq_logProb, seq_predictions = self.model(avi_feats, target_sentences=ground_truths, mode='train', tr_steps=epoch)
-            print(seq_logProb.size())
+            # print(seq_logProb.size())
             # eliminate <SOS>
             ground_truths = ground_truths[:, 1:]  
             loss = self.loss_fn(seq_logProb, ground_truths, lengths)
