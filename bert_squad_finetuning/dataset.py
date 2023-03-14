@@ -21,9 +21,9 @@ class SquadDataset(Dataset):
         contexts, questions, answer_starts, answer_ends = self.read_data()
         
         # Tokenize the question and contexts
-        tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
+        self.tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
         
-        self.encodings = tokenizer(questions, contexts, truncation=True, padding=True)
+        self.encodings = self.tokenizer(questions, contexts, truncation=True, padding=True)
         
         for i in range(10):
             idx = random.randint(0, 20000)
