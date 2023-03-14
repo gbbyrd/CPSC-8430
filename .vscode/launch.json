@@ -116,6 +116,16 @@
             "args": [],
             "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2_jupyter"
         },
+        {
+            "name": "bert_squad_finetuning",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [],
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/bert_squad_finetuning"
+        },
 
 
 
