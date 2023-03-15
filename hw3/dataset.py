@@ -4,18 +4,18 @@ from transformers import BertTokenizerFast
 from torch.utils.data import Dataset
 import random
 
-class SquadDataset(Dataset):
+class SpokenSquadDataset(Dataset):
     def __init__(self, train=True):
-        super(SquadDataset, self).__init__()
+        super(SpokenSquadDataset, self).__init__()
         """This dataset loads the data into 3 synced lists:
         context, question, answer.
         
         It then creates encodings using the BertTokenizerFast tokenizer
         """
         if train:
-            self.data_path = 'data/squad1.1/train-v1.1.json'
+            self.data_path = 'data/spoken_train-v1.1.json'
         else:
-            self.data_path = 'data/squad1.1/dev-v1.1.json'
+            self.data_path = 'data/spoken_test-v1.1.json'
         
         # Sync the context, question, and answer data
         contexts, questions, answer_starts, answer_ends = self.read_data()
@@ -23,7 +23,7 @@ class SquadDataset(Dataset):
         # Tokenize the question and contexts
         self.tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
         
-        self.encodings = self.tokenizer(questions, contexts, truncation=True, padding=True)
+        self.encodings = self.tokenizer(questions, contexts, truncation=True, padding=True) 
         self.encodings['answer_starts'] = answer_starts
         self.encodings['answer_ends'] = answer_ends
         
@@ -60,6 +60,3 @@ class SquadDataset(Dataset):
                         answer_ends.append(answer_end)
                         
             return contexts, questions, answer_starts, answer_ends
-            
-        
-        
