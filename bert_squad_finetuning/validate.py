@@ -2,14 +2,14 @@ from transformers import BertForQuestionAnswering, BertTokenizerFast
 import torch
 from torch.utils.data import DataLoader
 from dataset import SquadDataset
-import tqdm
+from tqdm import tqdm
 
 testset = SquadDataset(train=False)
 testloader = DataLoader(testset, batch_size=32, shuffle=False)
 
 model=BertForQuestionAnswering.from_pretrained('bert-base-uncased')
 
-device = 'cpu'
+device = 'cuda:2' if torch.cuda.is_available() else 'cpu'
 
 model = model.to(device)
 
@@ -18,7 +18,8 @@ model.eval()
 acc = []
 
 for i in range(2):
-  for batch in tqdm(testloader):
+  loop = tqdm(testloader, leave=True)
+  for batch in loop:
     with torch.no_grad():
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)

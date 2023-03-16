@@ -17,7 +17,7 @@ trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
 
 model = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
+device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
 
 print(f'Working on {device}')
 
@@ -47,4 +47,4 @@ for epoch in range(N_EPOCHS):
         
 model_path = 'checkpoints/'
 model.save_pretrained(model_path)
-SquadDataset.tokenizer.save_pretrained(model_path)
+trainset.tokenizer.save_pretrained(model_path)
