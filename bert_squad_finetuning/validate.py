@@ -2,7 +2,7 @@ from transformers import BertForQuestionAnswering, BertTokenizerFast
 import torch
 from torch.utils.data import DataLoader
 from dataset import SquadDataset
-import tqdm
+from tqdm import tqdm
 
 testset = SquadDataset(train=False)
 testloader = DataLoader(testset, batch_size=32, shuffle=False)
@@ -18,7 +18,8 @@ model.eval()
 acc = []
 
 for i in range(2):
-  for batch in tqdm(testloader):
+  loop = tqdm(testloader, leave=True)
+  for batch in loop:
     with torch.no_grad():
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
@@ -33,12 +34,13 @@ for i in range(2):
         acc.append(((start_pred==answer_starts).sum()/len(start_pred)).item())
         acc.append(((end_pred==answer_ends).sum()/len(end_pred)).item())
   
-  if i==0:
-    print(f'\n\nInference: ---------------------------------------\n\n')
   print("\n\nT/P\tanswer_start\tanswer_end\n")
   for i in range(len(answer_starts)):
     print(f"true\t{answer_starts[i]}\t{answer_ends[i]}\n"
           f"pred\t{start_pred[i]}\t{end_pred[i]}\n")
+  print(f'Accuracy: {acc.sum()/len(acc)}')
+  
   if i==0:
+    print(f'\n\nInference: ---------------------------------------\n\n')
     model_path = 'checkpoints'
     model = BertForQuestionAnswering.from_pretrained(model_path)
