@@ -17,7 +17,7 @@ model.eval()
 
 acc = []
 
-for i in range(2):
+for count in range(2):
   loop = tqdm(testloader, leave=True)
   for batch in loop:
     with torch.no_grad():
@@ -38,9 +38,10 @@ for i in range(2):
   for i in range(len(answer_starts)):
     print(f"true\t{answer_starts[i]}\t{answer_ends[i]}\n"
           f"pred\t{start_pred[i]}\t{end_pred[i]}\n")
-  print(f'Accuracy: {acc.sum()/len(acc)}')
+  print(f'Accuracy: {sum(acc)/len(acc)}')
   
-  if i==0:
+  if count==0:
     print(f'\n\nInference: ---------------------------------------\n\n')
     model_path = 'checkpoints'
     model = BertForQuestionAnswering.from_pretrained(model_path)
+    model = model.to(device)
