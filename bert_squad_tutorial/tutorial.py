@@ -93,15 +93,16 @@ print(f'We have {no_of_encodings} context-question pairs')
 
 train_encodings['input_ids'][0]
 
-tokenizer.decode(train_encodings['input_ids'][0])
+print(tokenizer.decode(train_encodings['input_ids'][0]))
 
 def add_token_positions(encodings, answers):
   start_positions = []
   end_positions = []
   for i in range(len(answers)):
+    print(answers[i]['answer_start'])
     start_positions.append(encodings.char_to_token(i, answers[i]['answer_start']))
     end_positions.append(encodings.char_to_token(i, answers[i]['answer_end'] - 1))
-
+    # print(start_positions[-1])
     # if start position is None, the answer passage has been truncated
     if start_positions[-1] is None:
       start_positions[-1] = tokenizer.model_max_length
@@ -126,6 +127,10 @@ class SQuAD_Dataset(torch.utils.data.Dataset):
 train_dataset = SQuAD_Dataset(train_encodings)
 valid_dataset = SQuAD_Dataset(valid_encodings)
 
+for i in range(10):
+  print(train_dataset[i]['start_positions'])
+  print(train_dataset[i]['end_positions'])
+
 from torch.utils.data import DataLoader
 
 # Define the dataloaders
@@ -137,7 +142,7 @@ from transformers import BertForQuestionAnswering
 model = BertForQuestionAnswering.from_pretrained("bert-base-uncased")
 
 # Check on the available device - use GPU
-device = torch.device('cuda:1') if torch.cuda.is_available() else torch.device('cpu')
+device = torch.device('cpu') if torch.cuda.is_available() else torch.device('cpu')
 
 print(f'Working on {device}')
 
@@ -146,28 +151,31 @@ from transformers import AdamW
 N_EPOCHS = 3
 optim = AdamW(model.parameters(), lr=5e-5)
 
-# model.to(device)
-# model.train()
+model.to(device)
+model.train()
 
-# for epoch in range(N_EPOCHS):
-#   loop = tqdm(train_loader, leave=True)
-#   for batch in loop:
-#     optim.zero_grad()
-#     input_ids = batch['input_ids'].to(device)
-#     attention_mask = batch['attention_mask'].to(device)
-#     start_positions = batch['start_positions'].to(device)
-#     end_positions = batch['end_positions'].to(device)
-#     outputs = model(input_ids, attention_mask=attention_mask, start_positions=start_positions, end_positions=end_positions)
-#     loss = outputs[0]
-#     loss.backward()
-#     optim.step()
+for epoch in range(N_EPOCHS):
+  loop = tqdm(train_loader, leave=True)
+  for batch in loop:
+    optim.zero_grad()
+    input_ids = batch['input_ids'].to(device)
+    attention_mask = batch['attention_mask'].to(device)
+    start_positions = batch['start_positions'].to(device)
+    end_positions = batch['end_positions'].to(device)
+    print(len(input_ids[0]))
+    print(start_positions[0])
+    print(end_positions[0])
+    outputs = model(input_ids, attention_mask=attention_mask, start_positions=start_positions, end_positions=end_positions)
+    loss = outputs[0]
+    loss.backward()
+    optim.step()
 
-#     loop.set_description(f'Epoch {epoch+1}')
-#     loop.set_postfix(loss=loss.item())
+    loop.set_description(f'Epoch {epoch+1}')
+    loop.set_postfix(loss=loss.item())
     
 model_path = 'checkpoints'
-# model.save_pretrained(model_path)
-# tokenizer.save_pretrained(model_path)
+model.save_pretrained(model_path)
+tokenizer.save_pretrained(model_path)
 
 # Load the model for testing
 
