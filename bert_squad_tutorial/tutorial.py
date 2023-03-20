@@ -137,13 +137,13 @@ from transformers import BertForQuestionAnswering
 model = BertForQuestionAnswering.from_pretrained("bert-base-uncased")
 
 # Check on the available device - use GPU
-# device = torch.device('cuda:1') if torch.cuda.is_available() else torch.device('cpu')
-device = 'cpu'
+device = torch.device('cuda:1') if torch.cuda.is_available() else torch.device('cpu')
+
 print(f'Working on {device}')
 
 from transformers import AdamW
 
-N_EPOCHS = 5
+N_EPOCHS = 3
 optim = AdamW(model.parameters(), lr=5e-5)
 
 model.to(device)
@@ -164,9 +164,8 @@ for epoch in range(N_EPOCHS):
 
     loop.set_description(f'Epoch {epoch+1}')
     loop.set_postfix(loss=loss.item())
-    break
-
-model_path = '/checkpoints'
+    
+model_path = 'checkpoints'
 model.save_pretrained(model_path)
 tokenizer.save_pretrained(model_path)
 
