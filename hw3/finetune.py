@@ -6,20 +6,18 @@ import os
 from tqdm import tqdm
 from transformers import BertTokenizerFast, BertForQuestionAnswering, AdamW
 
-from dataset import SpokenSquadDataset
+from dataset import SquadDataset
 
 """Finetune the BERT model for question answering
 
 """
 
-trainset = SpokenSquadDataset(train=True)
+trainset = SquadDataset(train=True)
 trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
 
 model = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-device = 'cpu'
+device = 'cpu' if torch.cuda.is_available() else 'cpu'
 
 print(f'Working on {device}')
 
@@ -32,11 +30,12 @@ model.train()
 for epoch in range(N_EPOCHS):
     loop = tqdm(trainloader, leave=True)
     for batch in loop:
+        print(batch.keys())
         optim.zero_grad()
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
-        answer_starts = batch['answer_starts'].to(device)
-        answer_ends = batch['answer_ends'].to(device)
+        answer_starts = batch['start_positions'].to(device)
+        answer_ends = batch['end_positions'].to(device)
         
         outputs = model(input_ids, attention_mask=attention_mask, 
                         start_positions=answer_starts, end_positions=answer_ends)
@@ -49,4 +48,4 @@ for epoch in range(N_EPOCHS):
         
 model_path = 'checkpoints/'
 model.save_pretrained(model_path)
-SpokenSquadDataset.tokenizer.save_pretrained(model_path)
+trainset.tokenizer.save_pretrained(model_path)
