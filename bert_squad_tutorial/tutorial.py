@@ -99,10 +99,8 @@ def add_token_positions(encodings, answers):
   start_positions = []
   end_positions = []
   for i in range(len(answers)):
-    print(answers[i]['answer_start'])
     start_positions.append(encodings.char_to_token(i, answers[i]['answer_start']))
     end_positions.append(encodings.char_to_token(i, answers[i]['answer_end'] - 1))
-    # print(start_positions[-1])
     # if start position is None, the answer passage has been truncated
     if start_positions[-1] is None:
       start_positions[-1] = tokenizer.model_max_length
@@ -128,8 +126,13 @@ train_dataset = SQuAD_Dataset(train_encodings)
 valid_dataset = SQuAD_Dataset(valid_encodings)
 
 for i in range(10):
-  print(train_dataset[i]['start_positions'])
-  print(train_dataset[i]['end_positions'])
+  data = train_dataset[i]
+  print(data['input_ids'])
+  print(data['token_type_ids'])
+  print(data['attention_mask'])
+  print(data['start_positions'])
+  print(data['end_positions'])
+
 
 from torch.utils.data import DataLoader
 
@@ -162,9 +165,6 @@ for epoch in range(N_EPOCHS):
     attention_mask = batch['attention_mask'].to(device)
     start_positions = batch['start_positions'].to(device)
     end_positions = batch['end_positions'].to(device)
-    print(len(input_ids[0]))
-    print(start_positions[0])
-    print(end_positions[0])
     outputs = model(input_ids, attention_mask=attention_mask, start_positions=start_positions, end_positions=end_positions)
     loss = outputs[0]
     loss.backward()

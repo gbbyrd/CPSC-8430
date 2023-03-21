@@ -17,7 +17,7 @@ trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
 
 model = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
 
-device = 'cuda:1' if torch.cuda.is_available() else 'cpu'
+device = 'cpu' if torch.cuda.is_available() else 'cpu'
 
 print(f'Working on {device}')
 
@@ -30,11 +30,12 @@ model.train()
 for epoch in range(N_EPOCHS):
     loop = tqdm(trainloader, leave=True)
     for batch in loop:
+        print(batch.keys())
         optim.zero_grad()
         input_ids = batch['input_ids'].to(device)
         attention_mask = batch['attention_mask'].to(device)
-        answer_starts = batch['answer_starts'].to(device)
-        answer_ends = batch['answer_ends'].to(device)
+        answer_starts = batch['start_positions'].to(device)
+        answer_ends = batch['end_positions'].to(device)
         
         outputs = model(input_ids, attention_mask=attention_mask, 
                         start_positions=answer_starts, end_positions=answer_ends)
