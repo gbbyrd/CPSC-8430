@@ -63,7 +63,12 @@ class SquadDataset(Dataset):
     def add_token_positions(self, answers):
         start_positions = []
         end_positions = []
+        count = 0
         for i in range(len(answers)):
+            if answers[i]['text'] == '':
+                start_positions.append(self.encodings.char_to_token(i, answers[i]['answer_start']))
+                end_positions.append(self.encodings.char_to_token(i, answers[i]['answer_end']))
+                continue
             start_positions.append(self.encodings.char_to_token(i, answers[i]['answer_start']))
             end_positions.append(self.encodings.char_to_token(i, answers[i]['answer_end']-1))
 
@@ -73,6 +78,7 @@ class SquadDataset(Dataset):
             if end_positions[-1] is None:
                 end_positions[-1] = self.tokenizer.model_max_length
 
+        
         self.encodings.update({'start_positions': start_positions, 'end_positions': end_positions})
             
         
