@@ -410,4 +410,6 @@ predictions, _, _ = trainer.predict(validation_dataset)
 start_logits, end_logits = predictions
 compute_metrics(start_logits, end_logits, validation_dataset, raw_datasets["validation"])
 
-trainer.push_to_hub(commit_message="Training complete")
+model_path = 'checkpoints/'
+model.save_pretrained(model_path)
+tokenizer.save_pretrained(model_path)
