@@ -5,118 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Part 1",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["--debugging"]
-        },
-
-        {
-            "name": "Part 2 - Train and Test",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["--train", "--test", "--epochs", "3", "--batch_size", "32", "--all_models"],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part2"
-        },
-
-        {
-            "name": "Part 2 - Test Only",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["--test"],
-            "cwd": "Project_1/Part2"
-        },
-
-        {
-            "name": "Generate Figures",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part2"
-        },
-        {
-            "name": "Part 3_Clean",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/Project_1/Part3_clean"
-        },
-        {
-            "name": "Part 2",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["--epochs", "7"],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC_8430/Project_1/Part2"
-        },
-        {
-            "name": "Part 1_2",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": ["--model_type", "cnn_0", "--train"],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/Project_1/Part1_2"
-        },
-        {
-            "name": "Seq2seq Tutorial",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2/seq2seq_tutorial"
-        },
-        {
-            "name": "hw2_1",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2/hw2_1"
-        },
-        {
-            "name": "hw2_clean",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2/hw2_clean"
-        },
-        {
-            "name": "hw2_jupyter",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw2_jupyter"
-        },
-        {
             "name": "bert_squad_finetuning",
             "type": "python",
             "request": "launch",
@@ -145,6 +33,26 @@
             "justMyCode": true,
             "args": [],
             "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/bert_squad_tutorial"
+        },
+        {
+            "name": "bert_finetuned",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [],
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/bert_finetuned"
+        },
+        {
+            "name": "hugging face tutorial",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [],
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hugging_face_bert_tutorial"
         },
 
 

@@ -64,21 +64,21 @@ def get_prediction_manual_question(context, question):
     
     return answer
 
-## load the test data dataset
-# testset = SquadDataset(train=False)
-# testloader = DataLoader(testset, batch_size=1, shuffle=True)
+# load the test data dataset
+testset = SquadDataset(train=False)
+testloader = DataLoader(testset, batch_size=1, shuffle=True)
 
-# for data in testloader:
-#     start_position = data['start_positions']
-#     end_postition = data['end_positions']
-#     true_answer = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(data['input_ids'][0][start_position:end_postition]))
-#     pred_answer = get_prediction(data)
-#     info = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(data['input_ids'][0]))
-#     print(f'Question and context: {info}')
-#     print(f'True answer: {true_answer}')
-#     print(f'Predicted answer: {pred_answer}')
+for data in testloader:
+    start_position = data['start_positions']
+    end_postition = data['end_positions']
+    true_answer = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(data['input_ids'][0][start_position:end_postition]))
+    pred_answer = get_prediction(data)
+    info = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(data['input_ids'][0]))
+    print(f'Question and context: {info}')
+    print(f'True answer: {true_answer}')
+    print(f'Predicted answer: {pred_answer}')
 
 while 1:
     question = input('Please ask a question about the passage:')
-    pred_answer = get_prediction_manual_question(context1, question)
+    pred_answer = get_prediction_manual_question(context, question)
     print(f'Answer: {pred_answer}')
