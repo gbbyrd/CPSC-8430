@@ -226,75 +226,80 @@ optimizer = AdamW(model.parameters(), lr=2e-5)
 # exactly how this works.
 
 from accelerate import Accelerator
-
-accelerator = Accelerator(mixed_precision='no')
-model, optimizer, trainloader, evalloader = accelerator.prepare(
-    model, optimizer, trainloader, evalloader
-)
-
-from transformers import get_scheduler
-
-num_train_epochs = 3
-num_update_steps_per_epoch = len(trainloader)
-num_training_steps = num_train_epochs * num_update_steps_per_epoch
-
-lr_scheduler = get_scheduler(
-    "linear",
-    optimizer=optimizer,
-    num_warmup_steps=0,
-    num_training_steps=num_training_steps,
-)
-
-# TRAINING LOOOP
 from tqdm.auto import tqdm
 import torch
 
-progress_bar = tqdm(range(num_training_steps))
-
-output_dir = 'checkpoints'
-device = 'cuda:2'
-model = model.to(device)
-
-for epoch in range(num_train_epochs):
-    # TRAINING
-    model.train()
-    for step, batch in enumerate(trainloader):
-        model = model.to(device)
-        batch = {k: v.to(device) for k, v in batch.items()}
-        outputs = model(**batch)
-        loss = outputs.loss
-        loss.backward()
-        # accelerator.backward(loss)
-        
-        optimizer.step()
-        lr_scheduler.step()
-        optimizer.zero_grad()
-        progress_bar.update(1)
-        
-    # EVALUATION
-    model.eval()
-    start_logits = []
-    end_logits = []
-    accelerator.print("Evaluation!")
-    for batch in tqdm(evalloader):
-        with torch.no_grad():
-            outputs = model(**batch)
-            
-        start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
-        end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
-        
-    start_logits = np.concatenate(start_logits)
-    end_logits = np.concatenate(end_logits)
-    start_logits = start_logits[: len(validation_dataset)]
-    end_logits = end_logits[: len(validation_dataset)]
-
-    metrics = compute_metrics(
-        start_logits, end_logits, validation_dataset, raw_datasets["validation"]
+def main():
+    accelerator = Accelerator(mixed_precision='no')
+    model, optimizer, trainloader, evalloader = accelerator.prepare(
+        model, optimizer, trainloader, evalloader
     )
-    print(f"epoch {epoch}:", metrics)
 
-    # Save and upload
-    accelerator.wait_for_everyone()
-    unwrapped_model = accelerator.unwrap_model(model)
-    unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
-    tokenizer.save_pretrained(output_dir)
+    from transformers import get_scheduler
+
+    num_train_epochs = 3
+    num_update_steps_per_epoch = len(trainloader)
+    num_training_steps = num_train_epochs * num_update_steps_per_epoch
+
+    lr_scheduler = get_scheduler(
+        "linear",
+        optimizer=optimizer,
+        num_warmup_steps=0,
+        num_training_steps=num_training_steps,
+    )
+
+    # TRAINING LOOOP
+
+    progress_bar = tqdm(range(num_training_steps))
+
+    output_dir = 'checkpoints'
+    device = 'cuda:2'
+    device = accelerator.device
+    model = model.to(device)
+
+    for epoch in range(num_train_epochs):
+        # TRAINING
+        model.train()
+        for step, batch in enumerate(trainloader):
+            # model = model.to(device)
+            # batch = {k: v.to(device) for k, v in batch.items()}
+            outputs = model(**batch)
+            loss = outputs.loss
+            # loss.backward()
+            accelerator.backward(loss)
+            
+            optimizer.step()
+            lr_scheduler.step()
+            optimizer.zero_grad()
+            progress_bar.update(1)
+            
+        # EVALUATION
+        model.eval()
+        start_logits = []
+        end_logits = []
+        accelerator.print("Evaluation!")
+        for batch in tqdm(evalloader):
+            with torch.no_grad():
+                outputs = model(**batch)
+                
+            start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
+            end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
+            
+        start_logits = np.concatenate(start_logits)
+        end_logits = np.concatenate(end_logits)
+        start_logits = start_logits[: len(validation_dataset)]
+        end_logits = end_logits[: len(validation_dataset)]
+
+        metrics = compute_metrics(
+            start_logits, end_logits, validation_dataset, raw_datasets["validation"]
+        )
+        print(f"epoch {epoch}:", metrics)
+
+        # Save and upload
+        accelerator.wait_for_everyone()
+        unwrapped_model = accelerator.unwrap_model(model)
+        unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
+        tokenizer.save_pretrained(output_dir)
+        
+if __name__=='__main__':
+    main()
