@@ -227,7 +227,7 @@ optimizer = AdamW(model.parameters(), lr=2e-5)
 
 from accelerate import Accelerator
 
-accelerator = Accelerator(mixed_precision='fp16')
+accelerator = Accelerator(mixed_precision='no')
 model, optimizer, trainloader, evalloader = accelerator.prepare(
     model, optimizer, trainloader, evalloader
 )
@@ -252,13 +252,19 @@ import torch
 progress_bar = tqdm(range(num_training_steps))
 
 output_dir = 'checkpoints'
+device = 'cuda:2'
+device = accelerator.device
+model = model.to(device)
 
 for epoch in range(num_train_epochs):
     # TRAINING
     model.train()
     for step, batch in enumerate(trainloader):
+        # model = model.to(device)
+        # batch = {k: v.to(device) for k, v in batch.items()}
         outputs = model(**batch)
         loss = outputs.loss
+        # loss.backward()
         accelerator.backward(loss)
         
         optimizer.step()
