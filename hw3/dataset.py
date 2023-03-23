@@ -1,12 +1,14 @@
 import torch
 import json
-from transformers import BertTokenizerFast
+from transformers import AutoTokenizer
 from torch.utils.data import Dataset
 import random
+import numpy as np
+        
 
-class SquadDataset(Dataset):
-    def __init__(self, train=True):
-        super(SquadDataset, self).__init__()
+class SpokenSquadDataset(Dataset):
+    def __init__(self, train=True, max_length=384, stride=128, model_checkpoint='bert-base-uncased'):
+        super(SpokenSquadDataset, self).__init__()
         """This dataset loads the data into 3 synced lists:
         context, question, answer.
         
@@ -16,16 +18,17 @@ class SquadDataset(Dataset):
             self.data_path = 'data/spoken_train-v1.1.json'
         else:
             self.data_path = 'data/spoken_test-v1.1.json'
+            
+        self.max_length = max_length
+        self.stride = stride
+        self.model_checkpoint = model_checkpoint
+        self.tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
         
         # Sync the context, question, and answer data
-        contexts, questions, answer_starts, answer_ends = self.read_data()
-        answers = [{'answer_start': answer_starts[i], 'text': contexts[i][answer_starts[i]:answer_ends[i]], 'answer_end': answer_ends[i]} for i in range(len(answer_starts))]
+        contexts, questions, answers = self.read_data()
+        self.examples = {'context': contexts, 'question': questions, 'answer': answers}
         
-        # Tokenize the question and contexts
-        self.tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
-        
-        self.encodings = self.tokenizer(contexts, questions, truncation=True, padding=True)
-        self.add_token_positions(answers)
+        self.encodings = self.preprocess_examples()
         
     def __getitem__(self, idx):
         return {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
@@ -40,8 +43,7 @@ class SquadDataset(Dataset):
             
             contexts = []
             questions = []
-            answer_starts = []
-            answer_ends = []
+            answers = []
             
             for title in data:
                 for paragraph in title['paragraphs']:
@@ -52,34 +54,77 @@ class SquadDataset(Dataset):
                         answer_start = qas['answers'][0]['answer_start']
                         
                         # add an 'answer_end' to the answer
-                        answer_end = answer_start + len(answer_text)
                         contexts.append(context)
                         questions.append(question)
-                        answer_starts.append(answer_start)
-                        answer_ends.append(answer_end)
+                        answers.append({'text': answer_text, 'answer_start': answer_start})
                         
-            return contexts, questions, answer_starts, answer_ends
+            return contexts, questions, answers
         
-    def add_token_positions(self, answers):
+    def preprocess_examples(self):
+        questions = [q.strip() for q in self.examples["question"]]
+        inputs = self.tokenizer(
+            questions,
+            self.examples["context"],
+            max_length=self.max_length,
+            truncation="only_second",
+            stride=self.stride,
+            return_overflowing_tokens=True,
+            return_offsets_mapping=True,
+            padding="max_length",
+        )
+        
+        offset_mapping = inputs.pop("offset_mapping")
+        sample_map = inputs.pop("overflow_to_sample_mapping")
+        answers = self.examples["answer"]
         start_positions = []
         end_positions = []
-        count = 0
-        for i in range(len(answers)):
-            if answers[i]['text'] == '':
-                start_positions.append(self.encodings.char_to_token(i, answers[i]['answer_start']))
-                end_positions.append(self.encodings.char_to_token(i, answers[i]['answer_end']))
-                continue
-            start_positions.append(self.encodings.char_to_token(i, answers[i]['answer_start']))
-            end_positions.append(self.encodings.char_to_token(i, answers[i]['answer_end']-1))
-
-            # if start position is None, the answer passage has been truncated
-            if start_positions[-1] is None:
-                start_positions[-1] = self.tokenizer.model_max_length
-            if end_positions[-1] is None:
-                end_positions[-1] = self.tokenizer.model_max_length
-
         
-        self.encodings.update({'start_positions': start_positions, 'end_positions': end_positions})
+        for i, offset in enumerate(offset_mapping):
+            sample_idx = sample_map[i]
+            answer = answers[sample_idx]
+            start_char = answer["answer_start"]
+            end_char = answer["answer_start"] + len(answer["text"])
+            sequence_ids = inputs.sequence_ids(i)
+
+            print()
+            # Find the start and end of the context
+            idx = 0
+            while sequence_ids[idx] != 1:
+                idx += 1
+            context_start = idx
+            while sequence_ids[idx] == 1:
+                idx += 1
+            context_end = idx - 1
+
+            # If the answer is not fully inside the context, label is (0, 0)
+            if offset[context_start][0] > start_char or offset[context_end][1] < end_char:
+                start_positions.append(0)
+                end_positions.append(0)
+            else:
+                # Otherwise it's the start and end token positions
+                idx = context_start
+                while idx <= context_end and offset[idx][0] <= start_char:
+                    idx += 1
+                start_positions.append(idx - 1)
+
+                idx = context_end
+                while idx >= context_start and offset[idx][1] >= end_char:
+                    idx -= 1
+                end_positions.append(idx + 1)
+        
+        inputs["start_positions"] = start_positions
+        inputs["end_positions"] = end_positions
+        return inputs    
+        
+# if __name__=='__main__':
+#     dataset = SpokenSquadDataset()
+#     for count, data in enumerate(dataset):
+#         decoded_input = dataset.tokenizer.decode(data['input_ids'])
+#         decoded_input_words = decoded_input.split()
+#         start = data['start_positions']
+#         end = data['end_positions']
+#         answer = data['input_ids'][start:end+1].numpy()
+#         decoded_answer = dataset.tokenizer.decode(answer)
+        
             
-        
-        
+

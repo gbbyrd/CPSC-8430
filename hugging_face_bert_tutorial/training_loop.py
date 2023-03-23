@@ -5,6 +5,8 @@ from transformers import AutoTokenizer, BertForQuestionAnswering
 
 # load the squad dataset
 raw_datasets = load_dataset("squad")
+print(type(raw_datasets["train"]))
+print(raw_datasets)
 
 """ Format of hugging face dataset
 DatasetDict({
@@ -219,6 +221,9 @@ evalloader = DataLoader(
     batch_size=8,
 )
 
+for batch in trainloader:
+    print(batch.keys())
+
 model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
 optimizer = AdamW(model.parameters(), lr=2e-5)
 
@@ -252,7 +257,7 @@ import torch
 progress_bar = tqdm(range(num_training_steps))
 
 output_dir = 'checkpoints'
-device = 'cuda:2'
+device = 'cpu'
 model = model.to(device)
 
 for epoch in range(num_train_epochs):

@@ -1,51 +1,62 @@
-import requests
-import json
+from dataset import SpokenSquadDataset
 import torch
 from torch.utils.data import DataLoader
-import os
-from tqdm import tqdm
-from transformers import BertTokenizerFast, BertForQuestionAnswering, AdamW
+from transformers import default_data_collator, BertForQuestionAnswering, get_scheduler
+from torch.optim import AdamW
+from accelerate import Accelerator
+from tqdm.auto import tqdm
 
-from dataset import SquadDataset
+# create spoken squad dataset and dataloader
+trainset = SpokenSquadDataset()
+trainloader = DataLoader(
+    trainset, 
+    shuffle=True,
+    collate_fn=default_data_collator,
+    batch_size=8
+)
 
-"""Finetune the BERT model for question answering
+# load model and choose optimizer
+model_checkpoint = 'bert-base-uncased'
+model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
+optimizer = AdamW(model.parameters(), lr=2e-5)
 
-"""
+# utilize hugging face accelerator to ensure that all tensors are on the correct device
+accelerator = Accelerator(mized_precision='no')
 
-trainset = SquadDataset(train=True)
-trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
+model, optimizer, trainloader = accelerator.prepare(
+    model, optimizer, trainloader
+)
 
-model = BertForQuestionAnswering.from_pretrained('bert-base-uncased')
+num_train_epochs = 3
+num_update_steps_per_epoch = len(trainloader)
+num_training_steps = num_train_epochs * num_update_steps_per_epoch
 
-device = 'cpu' if torch.cuda.is_available() else 'cpu'
+lr_scheduler = get_scheduler(
+    "linear",
+    optimizer=optimizer,
+    num_warmup_steps=0,
+    num_training_steps=num_training_steps,
+)
 
-print(f'Working on {device}')
+# train model
+progress_bar = tqdm(range(num_training_steps))
 
-N_EPOCHS = 5
-optim = AdamW(model.parameters(), lr=5e-5)
+output_dir = 'checkpoints'
 
-model.to(device)
-model.train()
-
-for epoch in range(N_EPOCHS):
-    loop = tqdm(trainloader, leave=True)
-    for batch in loop:
-        print(batch.keys())
-        optim.zero_grad()
-        input_ids = batch['input_ids'].to(device)
-        attention_mask = batch['attention_mask'].to(device)
-        answer_starts = batch['start_positions'].to(device)
-        answer_ends = batch['end_positions'].to(device)
+for epoch in range(num_train_epochs):
+    model.train()
+    for step, batch in enumerate(trainloader):
+        outputs = model(**batch)
+        loss = outputs.loss
+        accelerator.backward(loss)
         
-        outputs = model(input_ids, attention_mask=attention_mask, 
-                        start_positions=answer_starts, end_positions=answer_ends)
-        loss = outputs[0]
-        loss.backward()
-        optim.step()
+        optimizer.step()
+        lr_scheduler.step()
+        optimizer.zero_grad()
+        progress_bar.update(1)
         
-        loop.set_description(f'Epoch {epoch+1}')
-        loop.set_postfix(loss=loss.item())
-        
-model_path = 'checkpoints/'
-model.save_pretrained(model_path)
-trainset.tokenizer.save_pretrained(model_path)
+# save the model to checkpoints directory
+accelerator.wait_for_everyone()
+unwrapped_model = accelerator.unwrap_model(model)
+unwrapped_model.save_pretrained(output_dir, save_function=accelerator.save)
+trainset.tokenizer.save_pretrained(output_dir)
