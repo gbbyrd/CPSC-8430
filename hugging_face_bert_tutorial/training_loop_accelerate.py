@@ -219,8 +219,6 @@ evalloader = DataLoader(
     batch_size=8,
 )
 
-model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
-optimizer = AdamW(model.parameters(), lr=2e-5)
 
 # Use hugging face accelerator to get all of the objects on the correct device? Not sure
 # exactly how this works.
@@ -230,6 +228,25 @@ from tqdm.auto import tqdm
 import torch
 
 def main():
+    train_dataset.set_format("torch")
+    validation_set =  validation_dataset.remove_columns(["example_id", "offset_mapping"])
+    validation_set.set_format("torch")
+
+    trainloader = DataLoader(
+        train_dataset,
+        shuffle=True,
+        collate_fn=default_data_collator,
+        batch_size=8,
+    )   
+
+    evalloader = DataLoader(
+        validation_set,
+        collate_fn=default_data_collator,
+        batch_size=8,
+    )
+
+    model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
+    optimizer = AdamW(model.parameters(), lr=2e-5)
     accelerator = Accelerator(mixed_precision='no')
     model, optimizer, trainloader, evalloader = accelerator.prepare(
         model, optimizer, trainloader, evalloader
@@ -253,9 +270,6 @@ def main():
     progress_bar = tqdm(range(num_training_steps))
 
     output_dir = 'checkpoints'
-    device = 'cuda:2'
-    device = accelerator.device
-    model = model.to(device)
 
     for epoch in range(num_train_epochs):
         # TRAINING

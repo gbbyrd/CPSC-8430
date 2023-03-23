@@ -258,7 +258,11 @@ model = model.to(device)
 for epoch in range(num_train_epochs):
     # TRAINING
     model.train()
+    count = 0
     for step, batch in enumerate(trainloader):
+        count += 1
+        if count == 100:
+            break
         model = model.to(device)
         batch = {k: v.to(device) for k, v in batch.items()}
         outputs = model(**batch)
