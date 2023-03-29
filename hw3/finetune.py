@@ -21,7 +21,7 @@ model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
 optimizer = AdamW(model.parameters(), lr=2e-5)
 
 # utilize hugging face accelerator to ensure that all tensors are on the correct device
-accelerator = Accelerator(mized_precision='no')
+accelerator = Accelerator(mixed_precision='no')
 
 model, optimizer, trainloader = accelerator.prepare(
     model, optimizer, trainloader
