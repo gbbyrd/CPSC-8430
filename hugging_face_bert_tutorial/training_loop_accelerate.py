@@ -134,6 +134,8 @@ validation_dataset = raw_datasets["validation"].map(
     remove_columns=raw_datasets["validation"].column_names,
 )
 
+print(validation_dataset[0])
+
 import collections
 import numpy as np
 
@@ -265,7 +267,7 @@ def main():
         num_training_steps=num_training_steps,
     )
 
-    # TRAINING LOOOP
+    # TRAINING LOOP
 
     progress_bar = tqdm(range(num_training_steps))
 
