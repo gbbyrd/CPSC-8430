@@ -159,7 +159,7 @@ def main():
     start_logits = []
     end_logits = []
     accelerator.print("Evaluation!")
-    for batch in tqdm(spoken_squad_eval_loader):
+    for batch in tqdm(squad_eval_loader):
         with torch.no_grad():
             outputs = squad_model(**batch)
         
