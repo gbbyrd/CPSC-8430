@@ -19,6 +19,8 @@ DatasetDict({
 })
 """
 
+print(raw_datasets['validation'][0]['context'])
+
 model_checkpoint = 'bert-base-uncased'
 
 #############################################################################################
@@ -96,8 +98,6 @@ train_dataset = raw_datasets["train"].map(
     batched=True,
     remove_columns=raw_datasets["train"].column_names
 )
-
-print(train_dataset[0].keys())
 
 #################################### VALIDATION ###############################################
 

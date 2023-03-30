@@ -106,6 +106,7 @@ def compute_metrics(start_logits, end_logits, features, examples):
 def main():
     """Main evaluation loop
     """
+    
     # load the squad dataset
     raw_datasets = load_dataset("squad")
 
@@ -115,14 +116,7 @@ def main():
         batched=True,
         remove_columns=raw_datasets["validation"].column_names,
     )
-
-    # create the spoken squad preprocessed validation dataset
-    spoken_squad_validation_dataset = SpokenSquadDataset(train=False)
-    
-    # create the spoken squad unprocessed dataset. This will need to be used with
-    # the compute metrics function later on
-    spoken_squad_raw = SpokenSquadDataset(train=False, unprocessed=True)
-    
+        
     # define model checkpoint paths
     squad_model_checkpoint_path = 'checkpoints/squad'
     spoken_squad_model_checkpoint_path = 'checkpoints/spoken_squad'  
@@ -132,7 +126,6 @@ def main():
     # error when you try to convert to tensor related to some of the values in the list
     # being None type
     squad_validation_set = squad_validation_dataset.remove_columns(["example_id", "offset_mapping"])
-    spoken_squad_validation_set = squad_validation_dataset.remove_columns(["example_id", "offset_mapping"])
     
     # set hugging face datasets to torch format
     squad_validation_set.set_format("torch")
@@ -141,18 +134,11 @@ def main():
     squad_model = BertForQuestionAnswering.from_pretrained(squad_model_checkpoint_path)
     spoken_squad_model = BertForQuestionAnswering.from_pretrained(spoken_squad_model_checkpoint_path)
     
-    # Create dataloaders
+    # Create dataloader
     squad_eval_loader = DataLoader(
         squad_validation_set,
         collate_fn=default_data_collator,
         batch_size=8,
-    )
-
-    spoken_squad_eval_loader = DataLoader(
-        spoken_squad_validation_set,
-        shuffle=True,
-        collate_fn=default_data_collator,
-        batch_size=8
     )
     
     accelerator = Accelerator(mixed_precision='no')
@@ -204,50 +190,6 @@ def main():
     
     metrics = compute_metrics(
         start_logits, end_logits, squad_validation_dataset, raw_datasets["validation"]
-    )
-    
-    print(metrics)
-    
-    # squad trained model on spoken squad test dataset
-    start_logits = []
-    end_logits = []
-    accelerator.print("Evaluation!")
-    for batch in tqdm(spoken_squad_eval_loader):
-        with torch.no_grad():
-            outputs = squad_model(**batch)
-        
-        start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
-        end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
-            
-    start_logits = np.concatenate(start_logits)
-    end_logits = np.concatenate(end_logits)
-    start_logits = start_logits[: len(squad_validation_dataset)]
-    end_logits = end_logits[: len(squad_validation_dataset)]
-    
-    metrics = compute_metrics(
-        start_logits, end_logits, spoken_squad_validation_dataset, spoken_squad_raw
-    )
-    
-    print(metrics)
-    
-    # spoken squad trained model on spoken squad test dataset
-    start_logits = []
-    end_logits = []
-    accelerator.print("Evaluation!")
-    for batch in tqdm(spoken_squad_eval_loader):
-        with torch.no_grad():
-            outputs = spoken_squad_model(**batch)
-        
-        start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
-        end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
-            
-    start_logits = np.concatenate(start_logits)
-    end_logits = np.concatenate(end_logits)
-    start_logits = start_logits[: len(squad_validation_dataset)]
-    end_logits = end_logits[: len(squad_validation_dataset)]
-    
-    metrics = compute_metrics(
-        start_logits, end_logits, spoken_squad_validation_dataset, spoken_squad_raw
     )
     
     print(metrics)

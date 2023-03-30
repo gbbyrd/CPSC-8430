@@ -33,6 +33,7 @@ class SpokenSquadDataset(Dataset):
         self.examples = {'context': contexts, 'question': questions, 'answers': answers, 'id': ids}
         
         self.encodings = self.preprocess_examples()
+        print(len(self.encodings['input_ids']))
         
     def __getitem__(self, idx):
         if self.unprocessed == False:
@@ -80,10 +81,11 @@ class SpokenSquadDataset(Dataset):
                             answers.append({'text': texts, 'answer_start': answer_starts})
                         ids.append(id)
             
+            # only take the first 100 samples for debugging purposes
             if self.train == True:    
-                return contexts, questions, answers
+                return contexts[:100], questions[:100], answers[:100]
             else:
-                return contexts, questions, answers, ids
+                return contexts[:100], questions[:100], answers[:100], ids[:100]
         
     def preprocess_examples(self):
         
