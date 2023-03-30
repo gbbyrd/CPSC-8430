@@ -7,7 +7,7 @@ import numpy as np
         
 
 class SpokenSquadDataset(Dataset):
-    def __init__(self, train=True, max_length=384, stride=128, model_checkpoint='bert-base-uncased'):
+    def __init__(self, train=True, unprocessed=False, max_length=384, stride=128, model_checkpoint='bert-base-uncased'):
         super(SpokenSquadDataset, self).__init__()
         """This dataset loads the data into 3 synced lists:
         context, question, answer.
@@ -16,6 +16,7 @@ class SpokenSquadDataset(Dataset):
         """
         
         self.train = train
+        self.unprocessed = unprocessed
         
         if self.train:
             self.data_path = 'data/spoken_train-v1.1.json'
@@ -34,7 +35,10 @@ class SpokenSquadDataset(Dataset):
         self.encodings = self.preprocess_examples()
         
     def __getitem__(self, idx):
-        return {key: val[idx] for key, val in self.encodings.items()}
+        if self.unprocessed == False:
+            return {key: val[idx] for key, val in self.encodings.items()}
+        else:
+            return {key: val[idx] for key, val in self.examples.items()}
         
             
     def __len__(self):
@@ -140,9 +144,6 @@ class SpokenSquadDataset(Dataset):
 
         inputs["example_id"] = example_ids
         return inputs
-    
-    def get_unprocessed_data(self):
-        return self.examples
         
 # if __name__=='__main__':
 #     dataset = SpokenSquadDataset()
