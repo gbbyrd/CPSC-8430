@@ -79,13 +79,8 @@ class SpokenSquadDataset(Dataset):
                                 texts.append(answer['text'])
                                 answer_starts.append(answer['answer_start'])
                             answers.append({'text': texts, 'answer_start': answer_starts})
-                        ids.append(id)
             
-            # only take the first 100 samples for debugging purposes
-            if self.train == True:    
-                return contexts[:100], questions[:100], answers[:100]
-            else:
-                return contexts[:100], questions[:100], answers[:100], ids[:100]
+            return contexts, questions, answers
         
     def preprocess_examples(self):
         
