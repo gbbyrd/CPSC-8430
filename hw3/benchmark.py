@@ -162,51 +162,51 @@ def main():
     
     """evaluate the performance of each model on each dataset"""
     
-    # # squad trained model on squad test dataset
-    # squad_model.eval()
-    # spoken_squad_model.eval()
-    # start_logits = []
-    # end_logits = []
-    # accelerator.print("Evaluation!")
-    # for batch in tqdm(squad_eval_loader):
-    #     with torch.no_grad():
-    #         outputs = squad_model(**batch)
+    # squad trained model on squad test dataset
+    squad_model.eval()
+    spoken_squad_model.eval()
+    start_logits = []
+    end_logits = []
+    accelerator.print("Evaluation!")
+    for batch in tqdm(squad_eval_loader):
+        with torch.no_grad():
+            outputs = squad_model(**batch)
         
-    #     start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
-    #     end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
+        start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
+        end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
             
-    # start_logits = np.concatenate(start_logits)
-    # end_logits = np.concatenate(end_logits)
-    # start_logits = start_logits[: len(squad_validation_dataset)]
-    # end_logits = end_logits[: len(squad_validation_dataset)]
+    start_logits = np.concatenate(start_logits)
+    end_logits = np.concatenate(end_logits)
+    start_logits = start_logits[: len(squad_validation_dataset)]
+    end_logits = end_logits[: len(squad_validation_dataset)]
     
-    # metrics = compute_metrics(
-    #     start_logits, end_logits, squad_validation_dataset, raw_datasets["validation"]
-    # )
+    metrics = compute_metrics(
+        start_logits, end_logits, squad_validation_dataset, raw_datasets["validation"]
+    )
     
-    # print(metrics)
+    print(metrics)
     
-    # # spoken squad trained model on squad test dataset
-    # start_logits = []
-    # end_logits = []
-    # accelerator.print("Evaluation!")
-    # for batch in tqdm(squad_eval_loader):
-    #     with torch.no_grad():
-    #         outputs = spoken_squad_model(**batch)
+    # spoken squad trained model on squad test dataset
+    start_logits = []
+    end_logits = []
+    accelerator.print("Evaluation!")
+    for batch in tqdm(squad_eval_loader):
+        with torch.no_grad():
+            outputs = spoken_squad_model(**batch)
         
-    #     start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
-    #     end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
+        start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
+        end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
             
-    # start_logits = np.concatenate(start_logits)
-    # end_logits = np.concatenate(end_logits)
-    # start_logits = start_logits[: len(squad_validation_dataset)]
-    # end_logits = end_logits[: len(squad_validation_dataset)]
+    start_logits = np.concatenate(start_logits)
+    end_logits = np.concatenate(end_logits)
+    start_logits = start_logits[: len(squad_validation_dataset)]
+    end_logits = end_logits[: len(squad_validation_dataset)]
     
-    # metrics = compute_metrics(
-    #     start_logits, end_logits, squad_validation_dataset, raw_datasets["validation"]
-    # )
+    metrics = compute_metrics(
+        start_logits, end_logits, squad_validation_dataset, raw_datasets["validation"]
+    )
     
-    # print(metrics)
+    print(metrics)
     
     # squad trained model on spoken squad test dataset
     start_logits = []

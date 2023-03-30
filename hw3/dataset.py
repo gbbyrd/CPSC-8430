@@ -30,7 +30,7 @@ class SpokenSquadDataset(Dataset):
         
         # Sync the context, question, and answer data
         contexts, questions, answers, ids = self.read_data()
-        self.examples = {'context': contexts, 'question': questions, 'answer': answers, 'id': ids}
+        self.examples = {'context': contexts, 'question': questions, 'answers': answers, 'id': ids}
         
         self.encodings = self.preprocess_examples()
         
