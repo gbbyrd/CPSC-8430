@@ -97,6 +97,8 @@ train_dataset = raw_datasets["train"].map(
     remove_columns=raw_datasets["train"].column_names
 )
 
+print(train_dataset[0].keys())
+
 #################################### VALIDATION ###############################################
 
 def preprocess_validation_examples(examples):

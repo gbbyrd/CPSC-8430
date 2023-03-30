@@ -65,10 +65,25 @@ class SpokenSquadDataset(Dataset):
                         # add an 'answer_end' to the answer
                         contexts.append(context)
                         questions.append(question)
-                        answers.append({'text': answer_text, 'answer_start': answer_start})
+                        # the compute metrics functions requires all of the answers
+                        # to be in the raw data, so the evaluation dataset must contain
+                        # a list of all the answers per question whereas the training
+                        # dataset only requires one answer per questions to train
+                        if self.train == True:
+                            answers.append({'text': answer_text, 'answer_start': answer_start})
+                        else:
+                            answer_starts = []
+                            texts = []
+                            for answer in qas['answers']:
+                                texts.append(answer['text'])
+                                answer_starts.append(answer['answer_start'])
+                            answers.append({'text': texts, 'answer_start': answer_starts})
                         ids.append(id)
-                        
-            return contexts, questions, answers, ids
+            
+            if self.train == True:    
+                return contexts, questions, answers
+            else:
+                return contexts, questions, answers, ids
         
     def preprocess_examples(self):
         
