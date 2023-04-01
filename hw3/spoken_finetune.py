@@ -41,7 +41,7 @@ lr_scheduler = get_scheduler(
 # train model
 progress_bar = tqdm(range(num_training_steps))
 
-output_dir = 'checkpoints'
+output_dir = 'checkpoints/spoken_squad'
 
 for epoch in range(num_train_epochs):
     model.train()
