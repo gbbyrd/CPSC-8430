@@ -194,8 +194,8 @@ def main():
     model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
     optimizer = AdamW(model.parameters(), lr=2e-5)
     accelerator = Accelerator(mixed_precision='no')
-    model, optimizer, trainloader, evalloader = accelerator.prepare(
-        model, optimizer, trainloader, evalloader
+    model, optimizer, trainloader = accelerator.prepare(
+        model, optimizer, trainloader
     )
 
     from transformers import get_scheduler
