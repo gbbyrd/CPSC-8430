@@ -16,25 +16,17 @@ goldsteins initiatives as well as temporarily suspending the tradition of naming
 each super bowl game with roman numerals under which they gain would have been known as 
 super bowl l sell that the logo could prominently featured the arabic numerals fifty."""
 
-context = """Super Bowl 50 was an American football game to determine the champion 
-of the National Football League (NFL) for the 2015 season. The American Football 
-Conference (AFC) champion Denver Broncos defeated the National Football Conference 
-(NFC) champion Carolina Panthers 24–10 to earn their third Super Bowl title. The 
-game was played on February 7, 2016, at Levi's Stadium in the San Francisco Bay 
-Area at Santa Clara, California. As this was the 50th Super Bowl, the league emphasized 
-the "golden anniversary" with various gold-themed initiatives, as well as temporarily 
-suspending the tradition of naming each Super Bowl game with Roman numerals (under 
-which the game would have been known as "Super Bowl L"), so that the logo could 
-prominently feature the Arabic numerals 50."""
+context = """Ghast are a large flying mob in the nether that looks like ghosts. Usually when a ghast is flying around, it can be heard making crying noises. But when they notice a player, you’ll see them open their eyes and scream, followed by them shooting a fireball. Even though they’re extremely dangerous, ghast are known to drop valuable loot. Listed below is the amount of damage a ghast will do. Based on the difficulty you’re playing on. Ghast can be found all throughout the Nether, and for them to spawn there needs to be a 5x5 wide block and four blocks high. Listed below are all the biomes you can find a ghast in."""
+
 
 while 1:
 
     question = input("Please input a question:")
 
-    answer_spoken = question_answerer_spoken(question=question, context=context_spoken)
-    answer = question_answerer(question=question, context=context_spoken)
-    print(f'spoken answer: {answer_spoken}')
-    print(f'answer: {answer}')
+    # answer_spoken = question_answerer_spoken(question=question, context=context_spoken)
+    # answer = question_answerer(question=question, context=context_spoken)
+    # print(f'spoken answer: {answer_spoken}')
+    # print(f'answer: {answer}')
     
     answer_spoken = question_answerer_spoken(question=question, context=context)
     answer = question_answerer(question=question, context=context)

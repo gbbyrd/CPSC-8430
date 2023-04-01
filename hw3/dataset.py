@@ -29,8 +29,8 @@ class SpokenSquadDataset(Dataset):
         self.tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
         
         # Sync the context, question, and answer data
-        contexts, questions, answers, ids = self.read_data()
-        self.examples = {'context': contexts, 'question': questions, 'answers': answers, 'id': ids}
+        contexts, questions, answers= self.read_data()
+        self.examples = {'context': contexts, 'question': questions, 'answer': answers}
         
         self.encodings = self.preprocess_examples()
         print(len(self.encodings['input_ids']))
