@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 import os
 
 parser = ArgumentParser()
-parser.add_argument('pretrained_model', action='store', type=str, required=True, help='pretrained model name from huggingface library')
+parser.add_argument('--pretrained_model', action='store', type=str, required=True, help='pretrained model name from huggingface library')
 arguments = parser.parse_args()
 
 # load the squad dataset
