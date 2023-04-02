@@ -10,11 +10,11 @@ any pretrained model using the following commands:
 
 For training on SQuAD dataset
 
-```accelerate launch squad_finetune.py --pretrained_model <model_name>```
+```accelerate launch squad_finetune.py --pretrained_model <pretrained_model_name>```
 
 For training on Spoken SQuAD datset
 
-```accelerate launch spoken_finetune.py --pretrained_model <model_name>```
+```accelerate launch spoken_finetune.py --pretrained_model <pretrained_model_name>```
 
 ## Evaluation
 To evaluate your models, you much specify the path locations for the models in the 
