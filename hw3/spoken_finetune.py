@@ -5,6 +5,12 @@ from transformers import default_data_collator, BertForQuestionAnswering, get_sc
 from torch.optim import AdamW
 from accelerate import Accelerator
 from tqdm.auto import tqdm
+from argparse import ArgumentParser
+import os
+
+parser = ArgumentParser()
+parser.add_argument('pretrained_model', action='store', type=str, required=True, help='pretrained model name from huggingface library')
+arguments = parser.parse_args()
 
 # create spoken squad dataset and dataloader
 trainset = SpokenSquadDataset()
@@ -16,9 +22,8 @@ trainloader = DataLoader(
     batch_size=8
 )
 
-print(len(trainloader))
 # load model and choose optimizer
-model_checkpoint = 'bert-base-uncased'
+model_checkpoint = arguments.pretrained_model
 model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
 optimizer = AdamW(model.parameters(), lr=2e-5)
 
@@ -43,7 +48,9 @@ lr_scheduler = get_scheduler(
 # train model
 progress_bar = tqdm(range(num_training_steps))
 
-output_dir = 'checkpoints/spoken_squad'
+output_dir = 'checkpoints/spoken_squad/' + arguments.pretrained_model
+if not os.path.exists(output_dir):
+    os.mkdir(output_dir)
 
 for epoch in range(num_train_epochs):
     model.train()

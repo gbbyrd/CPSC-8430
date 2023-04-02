@@ -2,6 +2,12 @@ from torch.utils.data import DataLoader
 from transformers import default_data_collator
 from datasets import load_dataset
 from transformers import AutoTokenizer, BertForQuestionAnswering
+from argparse import ArgumentParser
+import os
+
+parser = ArgumentParser()
+parser.add_argument('pretrained_model', action='store', type=str, required=True, help='pretrained model name from huggingface library')
+arguments = parser.parse_args()
 
 # load the squad dataset
 raw_datasets = load_dataset("squad")
@@ -19,7 +25,7 @@ DatasetDict({
 })
 """
 
-model_checkpoint = 'bert-base-uncased'
+model_checkpoint = arguments.pretrained_model
 
 #############################################################################################
 #                                   PREPROCESS THE DATA
@@ -156,7 +162,9 @@ def main():
 
     progress_bar = tqdm(range(num_training_steps))
 
-    output_dir = 'checkpoints/squad'
+    output_dir = 'checkpoints/squad/' + arguments.pretrained_model
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
 
     for epoch in range(num_train_epochs):
         # TRAINING

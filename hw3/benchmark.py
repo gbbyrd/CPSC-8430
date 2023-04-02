@@ -9,6 +9,10 @@ from tqdm.auto import tqdm
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from accelerate import Accelerator
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument('pretrained_model', action='store', type=str, required=True, help='pretrained model name from huggingface library')
 
 def preprocess_squad_validation_examples(examples):
     # preprocess the validation data
