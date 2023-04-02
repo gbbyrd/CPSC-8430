@@ -8,6 +8,7 @@ from tqdm.auto import tqdm
 
 # create spoken squad dataset and dataloader
 trainset = SpokenSquadDataset()
+
 trainloader = DataLoader(
     trainset, 
     shuffle=True,
@@ -15,6 +16,7 @@ trainloader = DataLoader(
     batch_size=8
 )
 
+print(len(trainloader))
 # load model and choose optimizer
 model_checkpoint = 'bert-base-uncased'
 model = BertForQuestionAnswering.from_pretrained(model_checkpoint)
