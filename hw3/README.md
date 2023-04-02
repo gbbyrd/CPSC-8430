@@ -9,9 +9,11 @@ directories in your hw3 directory. This is where the models will be saved. You c
 any pretrained model using the following commands:
 
 For training on SQuAD dataset
+
 ```accelerate launch squad_finetune.py --pretrained_model <model_name>```
 
 For training on Spoken SQuAD datset
+
 ```accelerate launch spoken_finetune.py --pretrained_model <model_name>```
 
 ## Evaluation
@@ -23,4 +25,5 @@ my google drive here:
 https://drive.google.com/drive/folders/1UrnBzkBtn3nTI_iA_3ZDy-1netks0_-j?usp=share_link
 
 Then run the following command to get the f1 and exact matches scores
+
 ```accelerate launch benchmark.py```
