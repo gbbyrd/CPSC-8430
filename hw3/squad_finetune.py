@@ -215,7 +215,7 @@ def main():
 
     progress_bar = tqdm(range(num_training_steps))
 
-    output_dir = 'checkpoints'
+    output_dir = 'checkpoints/squad'
 
     for epoch in range(num_train_epochs):
         # TRAINING
