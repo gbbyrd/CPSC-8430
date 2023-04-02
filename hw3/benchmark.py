@@ -11,9 +11,6 @@ from torch.optim import AdamW
 from accelerate import Accelerator
 from argparse import ArgumentParser
 
-parser = ArgumentParser()
-parser.add_argument('pretrained_model', action='store', type=str, required=True, help='pretrained model name from huggingface library')
-
 def preprocess_squad_validation_examples(examples):
     # preprocess the validation data
     model_checkpoint = 'bert-base-uncased'
@@ -122,8 +119,8 @@ def main():
     )
         
     # define model checkpoint paths
-    squad_model_checkpoint_path = 'checkpoints/squad'
-    spoken_squad_model_checkpoint_path = 'checkpoints/spoken_squad'  
+    squad_model_checkpoint_path = 'checkpoints/squad/'
+    spoken_squad_model_checkpoint_path = 'checkpoints/spoken_squad/'  
     
     # remove the example id and offset mapping columns as they are unnecessary
     # WARNING WARNING if you do not remove the offset mapping column you will get an
@@ -135,8 +132,10 @@ def main():
     squad_validation_set.set_format("torch")
     
     # set parameters
-    squad_model = BertForQuestionAnswering.from_pretrained(squad_model_checkpoint_path)
-    spoken_squad_model = BertForQuestionAnswering.from_pretrained(spoken_squad_model_checkpoint_path)
+    squad_bert = BertForQuestionAnswering.from_pretrained(squad_model_checkpoint_path+'bert-base-uncased')
+    spoken_squad_bert = BertForQuestionAnswering.from_pretrained(spoken_squad_model_checkpoint_path+'bert-base-uncased')
+    squad_distilbert = BertForQuestionAnswering.from_pretrained(squad_model_checkpoint_path+'distilbert-base-uncased')
+    spoken_squad_distilbert = BertForQuestionAnswering.from_pretrained(spoken_squad_model_checkpoint_path+'distilbert-base-uncased')
     
     # Create dataloader
     squad_eval_loader = DataLoader(
@@ -152,7 +151,7 @@ def main():
     
     """evaluate the performance of each model on each dataset"""
     
-    # squad trained model on squad test dataset
+    # squad trained bert model on squad test dataset
     squad_model.eval()
     spoken_squad_model.eval()
     start_logits = []
@@ -160,7 +159,7 @@ def main():
     accelerator.print("Evaluation!")
     for batch in tqdm(squad_eval_loader):
         with torch.no_grad():
-            outputs = squad_model(**batch)
+            outputs = squad_bert(**batch)
         
         start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
         end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
@@ -176,13 +175,59 @@ def main():
     
     print(metrics)
     
-    # spoken squad trained model on squad test dataset
+    # spoken squad trained bert model on squad test dataset
     start_logits = []
     end_logits = []
     accelerator.print("Evaluation!")
     for batch in tqdm(squad_eval_loader):
         with torch.no_grad():
-            outputs = spoken_squad_model(**batch)
+            outputs = spoken_squad_bert(**batch)
+        
+        start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
+        end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
+            
+    start_logits = np.concatenate(start_logits)
+    end_logits = np.concatenate(end_logits)
+    start_logits = start_logits[: len(squad_validation_dataset)]
+    end_logits = end_logits[: len(squad_validation_dataset)]
+    
+    metrics = compute_metrics(
+        start_logits, end_logits, squad_validation_dataset, raw_datasets["validation"]
+    )
+    
+    print(metrics)
+    
+    # squad trained distilbert model on squad test dataset
+    squad_model.eval()
+    spoken_squad_model.eval()
+    start_logits = []
+    end_logits = []
+    accelerator.print("Evaluation!")
+    for batch in tqdm(squad_eval_loader):
+        with torch.no_grad():
+            outputs = squad_distilbert(**batch)
+        
+        start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
+        end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
+            
+    start_logits = np.concatenate(start_logits)
+    end_logits = np.concatenate(end_logits)
+    start_logits = start_logits[: len(squad_validation_dataset)]
+    end_logits = end_logits[: len(squad_validation_dataset)]
+    
+    metrics = compute_metrics(
+        start_logits, end_logits, squad_validation_dataset, raw_datasets["validation"]
+    )
+    
+    print(metrics)
+    
+    # spoken squad trained distilbert model on squad test dataset
+    start_logits = []
+    end_logits = []
+    accelerator.print("Evaluation!")
+    for batch in tqdm(squad_eval_loader):
+        with torch.no_grad():
+            outputs = spoken_squad_distilbert(**batch)
         
         start_logits.append(accelerator.gather(outputs.start_logits).cpu().numpy())
         end_logits.append(accelerator.gather(outputs.end_logits).cpu().numpy())
