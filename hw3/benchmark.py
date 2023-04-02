@@ -145,15 +145,18 @@ def main():
     )
     
     accelerator = Accelerator(mixed_precision='no')
-    squad_model, spoken_squad_model, squad_eval_loader, = accelerator.prepare(
-        squad_model, spoken_squad_model, squad_eval_loader
+    squad_bert, spoken_squad_bert, squad_distilbert, spoken_squad_distilbert, squad_eval_loader, = accelerator.prepare(
+        squad_bert, spoken_squad_bert, squad_distilbert, spoken_squad_distilbert, squad_eval_loader
     )
+    
+    squad_bert.eval()
+    spoken_squad_bert.eval()
+    squad_distilbert.eval()
+    spoken_squad_distilbert.eval()
     
     """evaluate the performance of each model on each dataset"""
     
     # squad trained bert model on squad test dataset
-    squad_model.eval()
-    spoken_squad_model.eval()
     start_logits = []
     end_logits = []
     accelerator.print("Evaluation!")
@@ -198,8 +201,6 @@ def main():
     print(metrics)
     
     # squad trained distilbert model on squad test dataset
-    squad_model.eval()
-    spoken_squad_model.eval()
     start_logits = []
     end_logits = []
     accelerator.print("Evaluation!")
