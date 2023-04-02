@@ -142,8 +142,8 @@ def main():
     )
     
     accelerator = Accelerator(mixed_precision='no')
-    squad_model, spoken_squad_model, squad_eval_loader, spoken_squad_eval_loader = accelerator.prepare(
-        squad_model, spoken_squad_model, squad_eval_loader, spoken_squad_eval_loader
+    squad_model, spoken_squad_model, squad_eval_loader, = accelerator.prepare(
+        squad_model, spoken_squad_model, squad_eval_loader
     )
     
     """evaluate the performance of each model on each dataset"""
