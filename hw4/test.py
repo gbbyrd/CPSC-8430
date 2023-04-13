@@ -1,5 +1,5 @@
 import torch
 
-yes = torch.ones(3, 4)
+yes = torch.randn(128, 100, 1 ,1)
 
-print(yes)
+print(yes.size())
