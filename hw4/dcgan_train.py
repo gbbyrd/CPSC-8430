@@ -2,17 +2,20 @@ import torch
 import torchvision
 from torchvision import transforms, datasets
 from argparse import ArgumentParser
+import torch.nn as nn
+import torch.optim as optim
+
 import dcgan_model
 
 args = ArgumentParser()
 
 args.add_argument('--train', action='store_true', default=False, help='Specify training')
-args.add_argument('--batch_size', action='store', default=32, help='Specify the batch size for training')
-args.add_argument('--epochs', action='store', default=100, help='Specify the number of epochs you want to train for')
-args.add_argument('--save_every', action='store', default=5, help='Specify number of epochs before saving')
+args.add_argument('--batch_size', action='store', type=int, default=32, help='Specify the batch size for training')
+args.add_argument('--epochs', action='store', type=int, default=100, help='Specify the number of epochs you want to train for')
+args.add_argument('--save_every', action='store', type=int, default=5, help='Specify number of epochs before saving')
 
 def train(generator, discriminator, criterion, optimizer_g, optimizer_d, epochs, trainloader, save_every):
-    for epoch in epochs:
+    for epoch in range(epochs):
         
         d_avg_loss = 0
         g_avg_loss = 0
@@ -124,5 +127,12 @@ def main():
     
     discriminator = dcgan_model.Discriminator()
     
+    criterion = nn.BCELoss()
+
+    optimizer_g = optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+    optimizer_d = optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
+
+    train(generator, discriminator, criterion, optimizer_g, optimizer_d, arguments.epochs, trainloader, arguments.save_every)
+
 if __name__ == '__main__':
     main()
