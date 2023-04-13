@@ -13,3 +13,4 @@ bert_squad_tutorial/checkpoints/
 hugging_face_bert_tutorial/checkpoints/
 hw3/checkpoints/spoken_squad/
 hw3/checkpoints/squad/
+hw4/data/
