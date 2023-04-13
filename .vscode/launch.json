@@ -5,58 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "bert_squad_finetuning",
+            "name": "hw4 directory",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/bert_squad_finetuning"
+            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw4"
         },
-        {
-            "name": "hw3",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hw3"
-        },
-        {
-            "name": "bert_squad_tutorial",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/bert_squad_tutorial"
-        },
-        {
-            "name": "bert_finetuned",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/bert_finetuned"
-        },
-        {
-            "name": "hugging face tutorial",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [],
-            "cwd": "/home/gbbyrd/Desktop/Code/School/CPSC-8430/hugging_face_bert_tutorial"
-        },
-
-
-
     ],
     
 }

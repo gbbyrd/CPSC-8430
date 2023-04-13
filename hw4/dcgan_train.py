@@ -14,14 +14,17 @@ args.add_argument('--batch_size', action='store', type=int, default=32, help='Sp
 args.add_argument('--epochs', action='store', type=int, default=100, help='Specify the number of epochs you want to train for')
 args.add_argument('--save_every', action='store', type=int, default=5, help='Specify number of epochs before saving')
 
-def train(generator, discriminator, criterion, optimizer_g, optimizer_d, epochs, trainloader, save_every):
+def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d, epochs, trainloader, save_every):
+    generator = generator.to(device)
+    discriminator = discriminator.to(device)
+    
     for epoch in range(epochs):
         
         d_avg_loss = 0
         g_avg_loss = 0
         
         for images_real, label in trainloader:
-            
+            images_real = images_real.to(device)
             ####################################################################
             # TRAIN THE DISCRIMINATOR FIRST
             ####################################################################
@@ -31,8 +34,8 @@ def train(generator, discriminator, criterion, optimizer_g, optimizer_d, epochs,
             batch_size = len(images_real)
             
             # create labels
-            labels_real = torch.ones(batch_size, 1)
-            labels_fake = torch.zeros(batch_size, 1)
+            labels_real = torch.ones(batch_size, 1).to(device)
+            labels_fake = torch.zeros(batch_size, 1).to(device)
             
             # get discriminator predictions
             d_pred_real = discriminator(images_real)
@@ -41,12 +44,17 @@ def train(generator, discriminator, criterion, optimizer_g, optimizer_d, epochs,
             d_loss_real = criterion(d_pred_real, labels_real)  
             
             # generate fake images for training
-            noise = torch.rand(batch_size, 100)
+            noise = torch.rand(batch_size, 100).to(device)
             
             images_fake = generator(noise)
             
             # get discriminator predictions
-            d_pred_fake = discriminator(images_fake)
+            '''this .detach() here is crucial as it prevents the gradients for 
+            the generator from being calculated. This would cause an error later on
+            in the code when we try to .backward() through the loss calculated for 
+            the generator because the gradients were calculated twice on the same
+            parameters before an optimizer step was called'''
+            d_pred_fake = discriminator(images_fake.detach())
             
             # calculate the loss from fake images
             d_loss_fake = criterion(d_pred_fake, labels_fake)
@@ -55,7 +63,7 @@ def train(generator, discriminator, criterion, optimizer_g, optimizer_d, epochs,
             d_total_loss = d_loss_real + d_loss_fake
             d_total_loss.backward()
             
-            d_avg_loss += round(d_total_loss / (batch_size * 2), 3)
+            d_avg_loss += round(d_total_loss.item() / (batch_size * 2), 3)
             
             # update weights
             optimizer_d.step()
@@ -74,7 +82,7 @@ def train(generator, discriminator, criterion, optimizer_g, optimizer_d, epochs,
             
             optimizer_g.step()
             
-            g_avg_loss += round(g_loss / (batch_size), 3)
+            g_avg_loss += round(g_loss.item() / (batch_size), 3)
             
         d_loss = round(d_avg_loss / (len(trainloader * 2)), 3)
         g_loss = round(g_avg_loss / len(trainloader), 3)
@@ -100,10 +108,11 @@ def main():
     batch_size = arguments.batch_size
 
     # Set transform variable to transform data to normalized tensor
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-    )
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize(64),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+        ])
 
     trainset = datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=transform)
@@ -132,7 +141,7 @@ def main():
     optimizer_g = optim.Adam(generator.parameters(), lr=0.0002, betas=(0.5, 0.999))
     optimizer_d = optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
-    train(generator, discriminator, criterion, optimizer_g, optimizer_d, arguments.epochs, trainloader, arguments.save_every)
+    train(device, generator, discriminator, criterion, optimizer_g, optimizer_d, arguments.epochs, trainloader, arguments.save_every)
 
 if __name__ == '__main__':
     main()
