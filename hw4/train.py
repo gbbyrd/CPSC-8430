@@ -23,28 +23,27 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
         d_avg_loss = 0
         g_avg_loss = 0
         
-        for images_real, label in trainloader:
+        for i, (images_real, label) in enumerate(trainloader):
             images_real = images_real.to(device)
-            ####################################################################
-            # TRAIN THE DISCRIMINATOR FIRST
-            ####################################################################
-            
+ 
             discriminator.zero_grad()
             
             batch_size = len(images_real)
             
             # create labels
-            labels_real = torch.ones(batch_size).to(device)
-            labels_fake = torch.zeros(batch_size).to(device)
+            labels_real = torch.ones(batch_size, 1).to(device)
+            labels_fake = torch.zeros(batch_size, 1).to(device)
             
             # get discriminator predictions
             d_pred_real = discriminator(images_real)
+            D_x = d_pred_real.mean().item()
             
             # calculate the loss from real images
             d_loss_real = criterion(d_pred_real, labels_real)  
+            d_loss_real.backward()
             
             # generate fake images for training
-            noise = torch.rand(batch_size, 100, 1, 1).to(device)
+            noise = torch.rand(batch_size, 100).to(device)
             
             images_fake = generator(noise)
             
@@ -55,15 +54,16 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
             the generator because the gradients were calculated twice on the same
             parameters before an optimizer step was called'''
             d_pred_fake = discriminator(images_fake.detach())
+            D_G_z1 = d_pred_fake.mean().item()
             
             # calculate the loss from fake images
             d_loss_fake = criterion(d_pred_fake, labels_fake)
+            d_loss_fake.backward()
             
             # compute gradients
-            d_total_loss = d_loss_real + d_loss_fake
-            d_total_loss.backward()
+            d_loss = d_loss_real + d_loss_fake
             
-            d_avg_loss += round(d_total_loss.item() / (batch_size * 2), 3)
+            d_avg_loss += round(d_loss.item() / (batch_size * 2), 3)
             
             # update weights
             optimizer_d.step()
@@ -75,6 +75,7 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
             generator.zero_grad()
             
             d_pred_fake = discriminator(images_fake)
+            D_G_z2 = d_pred_fake.mean().item()
             
             g_loss = criterion(d_pred_fake, labels_real)
             
@@ -82,9 +83,11 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
             
             optimizer_g.step()
             
+            print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f D(x): %.4f D(G(z)): %.4f / %.4f' % (epoch, epochs, i, len(trainloader), d_loss.item(), g_loss.item(), D_x, D_G_z1, D_G_z2))
+            
             g_avg_loss += round(g_loss.item() / (batch_size), 3)
             
-        d_loss = round(d_avg_loss / (len(trainloader * 2)), 3)
+        d_loss = round(d_avg_loss / (len(trainloader) * 2), 3)
         g_loss = round(g_avg_loss / len(trainloader), 3)
         
         print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -132,9 +135,9 @@ def main():
         9: 'truck'
     }
     
-    generator = dcgan_model.Generator_1()
+    generator = dcgan_model.Generator()
     
-    discriminator = dcgan_model.Discriminator_1()
+    discriminator = dcgan_model.Discriminator()
     
     criterion = nn.BCELoss()
 
