@@ -10,7 +10,7 @@ import sys
 import torch
 import json
 from dataset import HW2_Dataset
-from train import training, minibatch, test_data
+from hw4.train import training, minibatch, test_data
 from torch.utils.data import DataLoader
 from bleu_eval import BLEU
 

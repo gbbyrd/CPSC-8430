@@ -12,8 +12,8 @@ import dcgan_model
 args = ArgumentParser()
 
 args.add_argument('--train', action='store_true', default=False, help='Specify training')
-args.add_argument('--batch_size', action='store', type=int, default=32, help='Specify the batch size for training')
-args.add_argument('--epochs', action='store', type=int, default=100, help='Specify the number of epochs you want to train for')
+args.add_argument('--batch_size', action='store', type=int, default=128, help='Specify the batch size for training')
+args.add_argument('--epochs', action='store', type=int, default=50, help='Specify the number of epochs you want to train for')
 args.add_argument('--save_every', action='store', type=int, default=5, help='Specify number of epochs before saving')
 
 # #set manual seed to a constant get a consistent output
@@ -164,10 +164,10 @@ def main():
         9: 'truck'
     }
     
-    generator = dcgan_model.Generator()
+    generator = dcgan_model.Generator_1()
     # generator.apply(weights_init)
     
-    discriminator = dcgan_model.Discriminator()
+    discriminator = dcgan_model.Discriminator_1()
     # discriminator.apply(weights_init)
     
     criterion = nn.BCELoss()
