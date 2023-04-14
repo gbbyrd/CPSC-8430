@@ -83,20 +83,20 @@ class Discriminator_1(nn.Module):
 class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
-        self.convT1 = nn.ConvTranspose2d(100, 1024, kernel_size=4, stride=1, padding=0, bias=False)
+        self.convT1 = nn.ConvTranspose2d(100, 512, kernel_size=4, stride=1, padding=0, bias=False)
         self.bnorm1 = nn.BatchNorm2d(1024, momentum=0.9)
         self.relu = nn.ReLU(True)
         
-        self.convT2 = nn.ConvTranspose2d(1024, 512, kernel_size=4, stride=2, padding=1, bias=False)
-        self.bnorm2 = nn.BatchNorm2d(512, momentum=0.9)
+        self.convT2 = nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, bias=False)
+        self.bnorm2 = nn.BatchNorm2d(256, momentum=0.9)
         
-        self.convT3 = nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, bias=False)
-        self.bnorm3 = nn.BatchNorm2d(256, momentum=0.9)
+        self.convT3 = nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1, bias=False)
+        self.bnorm3 = nn.BatchNorm2d(128, momentum=0.9)
         
-        self.convT4 = nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1, bias=False)
-        self.bnorm4 = nn.BatchNorm2d(128, momentum=0.9)
+        self.convT4 = nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, bias=False)
+        self.bnorm4 = nn.BatchNorm2d(64, momentum=0.9)
         
-        self.convT5 = nn.ConvTranspose2d(128, 3, kernel_size=4, stride=2, padding=1, bias=False)
+        self.convT5 = nn.ConvTranspose2d(64, 3, kernel_size=4, stride=2, padding=1, bias=False)
         self.tanh = nn.Tanh()
         
     def forward(self, noise):
@@ -126,20 +126,20 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-        self.conv1 = nn.Conv2d(3, 128, kernel_size=4, stride=2, padding=1, bias=False)
-        self.bnorm1 = nn.BatchNorm2d(128, momentum=0.9)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=4, stride=2, padding=1, bias=False)
+        self.bnorm1 = nn.BatchNorm2d(64, momentum=0.9)
         self.leakyRelu = nn.LeakyReLU(0.02, inplace=True)
         
-        self.conv2 = nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1, bias=False)
-        self.bnorm2 = nn.BatchNorm2d(256, momentum=0.9)
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=4, stride=2, padding=1, bias=False)
+        self.bnorm2 = nn.BatchNorm2d(128, momentum=0.9)
         
-        self.conv3 = nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1, bias=False)
+        self.conv3 = nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1, bias=False)
         self.bnorm3 = nn.BatchNorm2d(512, momentum=0.9)
         
-        self.conv4 = nn.Conv2d(512, 1024, kernel_size=4, stride=2, padding=1, bias=False)
-        self.bnorm4 = nn.BatchNorm2d(1024, momentum=0.9)
+        self.conv4 = nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1, bias=False)
+        self.bnorm4 = nn.BatchNorm2d(512, momentum=0.9)
         
-        self.conv5 = nn.Conv2d(1024, 1, kernel_size=4, stride=1, padding=0, bias=False)
+        self.conv5 = nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=0, bias=False)
         self.sigmoid = nn.Sigmoid()
     
     def forward(self, image):
