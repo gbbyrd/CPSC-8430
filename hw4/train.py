@@ -43,7 +43,7 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
             d_loss_real.backward()
             
             # generate fake images for training
-            noise = torch.rand(batch_size, 100).to(device)
+            noise = torch.rand(batch_size, 100, 1, 1).to(device)
             
             images_fake = generator(noise)
             

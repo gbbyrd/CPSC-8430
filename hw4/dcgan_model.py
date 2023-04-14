@@ -84,4 +84,4 @@ class Discriminator(nn.Module):
         x = self.conv5(x)
         x = self.sigmoid(x)
         
-        return x
+        return x.view(-1, 1)
