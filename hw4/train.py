@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils as vutils
+import random
 
 import dcgan_model
 
@@ -15,15 +16,21 @@ args.add_argument('--batch_size', action='store', type=int, default=32, help='Sp
 args.add_argument('--epochs', action='store', type=int, default=100, help='Specify the number of epochs you want to train for')
 args.add_argument('--save_every', action='store', type=int, default=5, help='Specify number of epochs before saving')
 
-# custom weights initialization called on netG and netD
-# this improved the performance of my dcgan
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        m.weight.data.normal_(0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        m.weight.data.normal_(1.0, 0.02)
-        m.bias.data.fill_(0)
+# #set manual seed to a constant get a consistent output
+# manualSeed = random.randint(1, 10000)
+# print("Random Seed: ", manualSeed)
+# random.seed(manualSeed)
+# torch.manual_seed(manualSeed)
+
+# # custom weights initialization called on netG and netD
+# # this improved the performance of my dcgan
+# def weights_init(m):
+#     classname = m.__class__.__name__
+#     if classname.find('Conv') != -1:
+#         m.weight.data.normal_(0.0, 0.02)
+#     elif classname.find('BatchNorm') != -1:
+#         m.weight.data.normal_(1.0, 0.02)
+#         m.bias.data.fill_(0)
 
 def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d, epochs, trainloader, save_every):
     generator = generator.to(device)
@@ -158,10 +165,10 @@ def main():
     }
     
     generator = dcgan_model.Generator()
-    generator.apply(weights_init)
+    # generator.apply(weights_init)
     
     discriminator = dcgan_model.Discriminator()
-    discriminator.apply(weights_init)
+    # discriminator.apply(weights_init)
     
     criterion = nn.BCELoss()
 
