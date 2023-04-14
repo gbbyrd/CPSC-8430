@@ -15,3 +15,4 @@ hw3/checkpoints/spoken_squad/
 hw3/checkpoints/squad/
 hw4/data/*
 hw4/checkpoints/*
+hw4/outputs/*

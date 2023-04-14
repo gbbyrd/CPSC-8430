@@ -82,7 +82,7 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
         self.convT1 = nn.ConvTranspose2d(100, 512, kernel_size=4, stride=1, padding=0, bias=False)
-        self.bnorm1 = nn.BatchNorm2d(1024, momentum=0.9)
+        self.bnorm1 = nn.BatchNorm2d(512, momentum=0.9)
         self.relu = nn.ReLU(True)
         
         self.convT2 = nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, bias=False)
@@ -171,7 +171,7 @@ class Discriminator(nn.Module):
         self.bnorm2 = nn.BatchNorm2d(128, momentum=0.9)
         
         self.conv3 = nn.Conv2d(128, 256, kernel_size=4, stride=2, padding=1, bias=False)
-        self.bnorm3 = nn.BatchNorm2d(512, momentum=0.9)
+        self.bnorm3 = nn.BatchNorm2d(256, momentum=0.9)
         
         self.conv4 = nn.Conv2d(256, 512, kernel_size=4, stride=2, padding=1, bias=False)
         self.bnorm4 = nn.BatchNorm2d(512, momentum=0.9)
@@ -199,7 +199,7 @@ class Discriminator(nn.Module):
         x = self.conv5(x)
         x = self.sigmoid(x)
         
-        return x.view(-1, 1)
+        return x.view(-1, 1).squeeze(1)
 
 discriminator = Discriminator().to(device)
 discriminator.apply(weights_init)
@@ -227,7 +227,7 @@ for epoch in range(epochs):
         discriminator.zero_grad()
         real_cpu = data[0].to(device)
         batch_size = real_cpu.size(0)
-        label = torch.full((batch_size,), real_label, device=device)
+        label = torch.full((batch_size,), real_label, device=device, dtype=torch.float)
 
         output = discriminator(real_cpu)
         errD_real = criterion(output, label)
