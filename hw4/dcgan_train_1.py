@@ -84,7 +84,7 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
             
             g_avg_loss += round(g_loss.item() / (batch_size), 3)
             
-        d_loss = round(d_avg_loss / (len(trainloader * 2)), 3)
+        d_loss = round(d_avg_loss / (len(trainloader) * 2), 3)
         g_loss = round(g_avg_loss / len(trainloader), 3)
         
         print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
@@ -94,8 +94,8 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
         print("\n")
         
         if epoch % save_every == 0:
-            torch.save(discriminator.state_dict(), f'checkpoints/D_{epoch}.pth')
-            torch.save(generator.state_dict(), f'checkpoints/G_{epoch}.pth')
+            torch.save(discriminator.state_dict(), f'checkpoints/D_{epoch}_1.pth')
+            torch.save(generator.state_dict(), f'checkpoints/G_{epoch}_1.pth')
             
 def main():
     
