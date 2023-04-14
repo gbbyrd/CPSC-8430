@@ -4,6 +4,7 @@ from torchvision import transforms, datasets
 from argparse import ArgumentParser
 import torch.nn as nn
 import torch.optim as optim
+import torchvision.utils as vutils
 
 import dcgan_model
 
@@ -18,6 +19,8 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
     generator = generator.to(device)
     discriminator = discriminator.to(device)
     
+    fixed_noise = torch.randn(128, 100, 1, 1, device=device)
+    
     for epoch in range(epochs):
         
         d_avg_loss = 0
@@ -27,6 +30,8 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
             images_real = images_real.to(device)
  
             discriminator.zero_grad()
+            
+            real = images_real.to(device)
             
             batch_size = len(images_real)
             
@@ -86,6 +91,13 @@ def train(device, generator, discriminator, criterion, optimizer_g, optimizer_d,
             print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f D(x): %.4f D(G(z)): %.4f / %.4f' % (epoch, epochs, i, len(trainloader), d_loss.item(), g_loss.item(), D_x, D_G_z1, D_G_z2))
             
             g_avg_loss += round(g_loss.item() / (batch_size), 3)
+            
+            #save the output
+            if i % 100 == 0:
+                print('saving the output')
+                vutils.save_image(real,'output/real_samples.png',normalize=True)
+                fake = generator(fixed_noise)
+                vutils.save_image(fake.detach(),'output/fake_samples_epoch_%03d.png' % (epoch),normalize=True)
             
         d_loss = round(d_avg_loss / (len(trainloader) * 2), 3)
         g_loss = round(g_avg_loss / len(trainloader), 3)
