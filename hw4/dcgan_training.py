@@ -47,8 +47,6 @@ noise_dim = 100
 
 generator = dcgan_model.Generator().to(device)
 generator.apply(weights_init)
-#load weights to test the model
-#generator.load_state_dict(torch.load('weights/netG_epoch_24.pth'))
 print(generator)
 
 discriminator = dcgan_model.Discriminator().to(device)
